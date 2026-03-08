@@ -38,7 +38,7 @@ export default function Layout({ children }) {
     fetchUnread();
     const interval = setInterval(fetchUnread, 30000);
     return () => clearInterval(interval);
-  }, [fetchUnread]);
+  }, [fetchUnread, location.pathname]);
 
   const NAV_ITEMS = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },

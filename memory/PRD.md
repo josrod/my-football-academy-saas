@@ -8,72 +8,41 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - **Backend**: FastAPI (Python) + MongoDB (Motor async driver)
 - **Auth**: JWT-based custom authentication
 - **Multi-tenant**: club_id isolation on all collections
+- **Storage**: Emergent Object Storage for file uploads
 - **Design**: Dark theme (Linear/Vercel-style) with green accents
 
 ## User Personas
-1. **Academy Admin** - Full access to all modules, manages users, settings, announcements
-2. **Coach** - Manages players, training, matches, scouting, can post announcements
-3. **Parent** - Read-only access to children's progress, schedule, attendance, announcements
-
-## Core Requirements
-- Multi-tenant SaaS with club_id-based data isolation
-- JWT authentication with role-based access (admin, coach, parent)
-- Dashboard with widgets and charts (Recharts)
-- Player management with profiles, metrics, medical records, match history
-- Team management with rosters
-- Training session management with attendance tracking
-- Match management with player stats and reports
-- Calendar with FullCalendar (training, matches, events)
-- Scouting & player evaluations with radar charts
-- Parent portal (read-only view)
-- Announcements/communication system
-- Admin user management
-- Club settings
+1. **Academy Admin** - Full access to all modules, manages users, settings, announcements, notifications
+2. **Coach** - Manages players, training, matches, scouting, can send notifications
+3. **Parent** - Read-only access to children's progress, schedule, attendance, notifications
 
 ## What's Been Implemented
 
-### Backend (FastAPI)
-- Full REST API with 35+ endpoints
+### Backend (FastAPI) - 40+ endpoints
 - JWT auth (signup, login, me)
-- All CRUD operations for: players, teams, training, matches, calendar events, announcements, evaluations, injuries, metrics
-- Dashboard aggregation endpoint with charts data
+- CRUD: players, teams, training, matches, calendar events, announcements, evaluations, injuries, metrics
+- Dashboard aggregation with charts data
 - Parent portal endpoints
-- Admin user management
-- Club settings
-- **User language preference** (PUT/GET /api/user/language)
-- **Mock parent notification system** (CRUD /api/notifications with email_simulated flag)
-- Seed data endpoint (1 club, 4 teams, 60 players, 10 training sessions, 6 matches, 5 announcements, 15 evaluations)
-- Multi-tenant club_id filtering on all queries
+- Admin user management, club settings
+- User language preference (PUT/GET /api/user/language)
+- Mock parent notification system (CRUD /api/notifications)
+- **File upload** (POST /api/upload, GET /api/files/{path}) via Emergent Object Storage
+- Seed data endpoint
 
-### Frontend (React)
-- 18+ screens implemented
-- **i18n (Internationalization)** - Full support for 7 languages:
-  - English, Spanish, German, French, Portuguese, Italian, Arabic
-  - Language switcher on landing page (7 language buttons)
-  - Language switcher in sidebar (Globe icon with dropdown, all 7 languages)
-  - All page titles, navigation, form labels, buttons, status labels translated
-  - **RTL support for Arabic** (dynamic dir="rtl" on html element)
-  - **User language preference persistence** (saved to DB on change, applied on login)
-  - Language preference persisted in localStorage + backend
-- Sidebar navigation (Linear-style)
-- Dark theme with green (#22c55e) accents
-- Mobile responsive with hamburger menu
-- Framer Motion animations
+### Frontend (React) - 20+ screens
+- **i18n**: 7 languages (EN, ES, DE, FR, PT, IT, AR) with RTL support
+- **Notifications UI**: Compose/send form for admin/coach, notification list with read/unread, badge in sidebar
+- **File Upload**: Player photo upload (profile page), club logo upload (settings)
+- **CSV/PDF Export**: Export players CSV, full academy PDF report on Reports page
+- Player avatars with photos or initials in tables
+- Full sidebar navigation with unread notification count
+- Dark theme, mobile responsive, animations
 
-### Seed Data
-- 1 Club: FC Academy Elite
-- 4 Teams: U10 Lions, U12 Tigers, U14 Eagles, U16 Wolves
-- 60 Players across categories
-- 10 Training sessions with attendance records
-- 6 Matches (3 completed with stats, 3 scheduled)
-- 15 Player evaluations
-- 5 Announcements
-- Demo users: admin, 4 coaches, 1 parent
-
-## Testing Status
-- Backend: 100% (18/18 API tests passed - iteration 3)
-- Frontend: 95% (22/23 UI tests passed - iteration 3)
-- Previous iterations: iteration_1 (21/21 backend), iteration_2 (16/17 frontend)
+### Testing Status
+- Iteration 1: Backend 100% (21/21)
+- Iteration 2: Frontend 94% (16/17)
+- Iteration 3: Backend 100% (18/18), Frontend 95% (22/23)
+- Iteration 4: Backend 100% (16/16), Frontend 95%
 
 ## Demo Credentials
 - Admin: admin@academy.com / admin123
@@ -83,23 +52,17 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 ## Prioritized Backlog
 
 ### P0 (Critical) - All Done
-- [x] Auth system
-- [x] Dashboard
-- [x] Player management
-- [x] Team management
-- [x] Training & attendance
-- [x] Match management
-- [x] i18n - 7 languages (EN, ES, DE, FR, PT, IT, AR)
-- [x] RTL support for Arabic
+- [x] Auth, Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Parent Portal, Admin, Settings
+- [x] i18n - 7 languages with RTL support
 - [x] User language preference persistence
-- [x] Mock parent notification system (backend)
+- [x] Notifications UI (send + view + read/unread)
+- [x] File/image upload (player photos, club logos)
+- [x] CSV/PDF export
 
 ### P1 (Important)
-- [ ] File/image upload (player photos, club logo)
-- [ ] Email notifications for announcements
-- [ ] Export data (CSV/PDF reports)
+- [ ] Auto-translation for announcements using LLM
+- [ ] Email notifications via SendGrid/Resend
 - [ ] Advanced match statistics & formations
-- [ ] Notification UI for frontend (send/view notifications)
 
 ### P2 (Nice to Have)
 - [ ] Real-time notifications (WebSocket)
@@ -111,8 +74,7 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - [ ] Dark/Light theme toggle
 
 ## Next Tasks
-1. Build notification UI for coaches to send and parents to view
-2. Add file upload for player photos and club logos
-3. Implement CSV export for player and match data
-4. Add email notifications via SendGrid/Resend
-5. Build season management module
+1. Auto-translation for announcements (LLM integration - user needs to pick provider)
+2. Email notifications via SendGrid/Resend
+3. Season management module
+4. Stripe billing integration
