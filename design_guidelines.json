@@ -1,0 +1,151 @@
+{
+  "brand": {
+    "name": "AcademyOS",
+    "description": "Elite Youth Football Academy Management Platform",
+    "tone": "Professional, Athletic, Precision, Data-Driven",
+    "archetype": "The Performance Pro"
+  },
+  "theme": {
+    "mode": "dark",
+    "strategy": "Force dark mode for the 'Command Center' feel. Light mode can be an option but design primarily for dark."
+  },
+  "colors": {
+    "palette": {
+      "background": {
+        "default": "#09090b", 
+        "paper": "#121212",
+        "subtle": "#18181b"
+      },
+      "foreground": {
+        "default": "#ffffff",
+        "muted": "#a1a1aa",
+        "dim": "#52525b"
+      },
+      "primary": {
+        "DEFAULT": "#22c55e",
+        "foreground": "#000000",
+        "hover": "#16a34a",
+        "glow": "0 0 20px rgba(34, 197, 94, 0.5)"
+      },
+      "secondary": {
+        "DEFAULT": "#27272a",
+        "foreground": "#ffffff"
+      },
+      "accent": {
+        "DEFAULT": "#3b82f6",
+        "foreground": "#ffffff"
+      },
+      "destructive": {
+        "DEFAULT": "#ef4444",
+        "foreground": "#ffffff"
+      },
+      "border": "#27272a",
+      "input": "#27272a",
+      "ring": "#22c55e"
+    },
+    "gradients": {
+      "subtle": "linear-gradient(to bottom right, #18181b, #09090b)",
+      "glow": "radial-gradient(circle at center, rgba(34, 197, 94, 0.15), transparent 70%)"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": {
+        "name": "Barlow Condensed",
+        "url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&display=swap",
+        "usage": "Headings (h1-h3), KPIs, Player Numbers",
+        "weights": ["500", "600", "700"]
+      },
+      "body": {
+        "name": "Inter",
+        "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap",
+        "usage": "Body text, UI labels, Data tables",
+        "weights": ["300", "400", "500", "600"]
+      }
+    },
+    "scale": {
+      "h1": "text-4xl font-bold tracking-tight uppercase",
+      "h2": "text-3xl font-semibold tracking-tight uppercase",
+      "h3": "text-2xl font-semibold tracking-tight",
+      "body": "text-sm leading-relaxed text-zinc-400",
+      "caption": "text-xs text-zinc-500 uppercase tracking-wider",
+      "label": "text-[13px] font-medium text-zinc-300"
+    }
+  },
+  "layout": {
+    "spacing": {
+      "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+      "section": "py-12 md:py-16",
+      "widget_gap": "gap-4 md:gap-6"
+    },
+    "grid": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4",
+      "bento": "grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]"
+    },
+    "radius": {
+      "default": "rounded-lg",
+      "card": "rounded-xl",
+      "button": "rounded-md"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground shadow hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all duration-300 uppercase tracking-wide font-semibold text-xs",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-white/10 text-xs uppercase tracking-wide",
+      "ghost": "hover:bg-accent hover:text-accent-foreground"
+    },
+    "cards": {
+      "default": "bg-zinc-900/50 border border-white/5 backdrop-blur-sm shadow-sm hover:border-white/10 transition-colors",
+      "highlight": "bg-gradient-to-br from-zinc-900 to-zinc-950 border border-primary/20 shadow-[0_0_30px_-10px_rgba(34,197,94,0.1)]"
+    },
+    "inputs": {
+      "default": "bg-zinc-950 border-input placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all duration-200"
+    },
+    "sidebar": {
+      "container": "bg-zinc-950 border-r border-border w-64 h-screen fixed left-0 top-0 hidden md:flex flex-col z-50",
+      "link": "flex items-center gap-3 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors",
+      "link_active": "text-primary bg-primary/10 border-r-2 border-primary rounded-none rounded-l-md"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-black/40 border border-white/10",
+    "glow_effects": "shadow-[0_0_20px_rgba(34,197,94,0.15)]",
+    "borders": "border border-zinc-800"
+  },
+  "assets": {
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1710789056962-ccee0cef42a0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHw0fHxzb2NjZXIlMjBwbGF5ZXIlMjB0cmFpbmluZyUyMGFjdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc3Mjk4ODUyOHww&ixlib=rb-4.1.0&q=85",
+      "login_bg": "https://images.unsplash.com/photo-1710788605559-0a16daae12b4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwzfHxzb2NjZXIlMjBwbGF5ZXIlMjB0cmFpbmluZyUyMGFjdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc3Mjk4ODUyOHww&ixlib=rb-4.1.0&q=85",
+      "default_avatar": "https://images.unsplash.com/photo-1759808944777-a05e2e9d0685?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBwbGF5ZXIlMjB0cmFpbmluZyUyMGFjdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc3Mjk4ODUyOHww&ixlib=rb-4.1.0&q=85",
+      "training_placeholder": "https://images.unsplash.com/photo-1505250469679-203ad9ced0cb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxzb2NjZXIlMjBwbGF5ZXIlMjB0cmFpbmluZyUyMGFjdGlvbiUyMG5pZ2h0fGVufDB8fHx8MTc3Mjk4ODUyOHww&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "libraries": {
+    "charts": "Recharts (ResponsiveContainer, AreaChart, BarChart)",
+    "calendar": "FullCalendar (DayGrid, TimeGrid, Interaction)",
+    "icons": "Lucide React (already installed)",
+    "motion": "Framer Motion (AnimatePresence, motion.div)"
+  },
+  "instructions_to_main_agent": [
+    "Install 'framer-motion' and 'recharts' and '@fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction' immediately.",
+    "Add the Google Fonts import to the index.html or main CSS file: <link href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap' rel='stylesheet'>",
+    "Configure Tailwind with the custom colors defined in 'colors' section. Extend the theme, do not overwrite default.",
+    "Use 'Barlow Condensed' for all headings and 'Inter' for body. Apply 'uppercase' to H1 and H2 for that athletic look.",
+    "Implement the Sidebar layout for the dashboard. It should be fixed on the left.",
+    "For the Dashboard, use the 'Bento Grid' layout. Mix large summary cards with smaller metric cards.",
+    "Ensure all interactive elements have hover states defined in the components section.",
+    "Use the 'glassmorphism' classes for overlays and sticky headers.",
+    "CRITICAL: Do not use default HTML inputs/selects. Use Shadcn UI components for everything.",
+    "For the Calendar, customize the CSS to match the dark theme (override FullCalendar's default white background).",
+    "Add `data-testid` to all interactive elements."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Avoid generic centered layouts. Use asymmetry and grid-based structures.",
+    "Use 2-3x more spacing (padding/margin) than typical designs.",
+    "Every interaction needs micro-animations (hover, focus, active).",
+    "Use 'sonner' for toast notifications.",
+    "Prioritize Shadcn components but customize them to match the 'Performance Pro' aesthetic (remove rounding, add borders).",
+    "Do not use gradients for backgrounds unless specified. Use solid dark colors with subtle borders.",
+    "Ensure high contrast for text (White on Black, not Grey on Black)."
+  ]
+}
