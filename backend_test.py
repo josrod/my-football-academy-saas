@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 class AcademySaaSAPITester:
-    def __init__(self, base_url="https://2fe90cdd-1abb-44e0-806c-a7a963981191.preview.emergentagent.com"):
+    def __init__(self, base_url="https://football-academy-mvp.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
