@@ -34,9 +34,7 @@ export default function Signup() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <Link to="/" className="inline-flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center">
-              <Shield size={20} className="text-black" />
-            </div>
+            <img src="/icon.svg" alt="AcademyOS" className="w-9 h-9 rounded-md" />
             <span className="font-heading text-xl font-bold text-white uppercase">AcademyOS</span>
           </Link>
           <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('auth.createAccount')}</h1>

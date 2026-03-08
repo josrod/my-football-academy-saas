@@ -75,9 +75,7 @@ export default function Layout({ children }) {
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-zinc-950 border-r border-zinc-800 fixed left-0 top-0 h-screen z-50" data-testid="sidebar">
         <div className="flex items-center gap-3 px-5 py-5 border-b border-zinc-800">
-          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-            <Shield size={18} className="text-black" />
-          </div>
+          <img src="/icon.svg" alt="AcademyOS" className="w-8 h-8 rounded-md" />
           <span className="font-heading text-lg font-bold tracking-tight text-white uppercase">AcademyOS</span>
         </div>
 
@@ -150,9 +148,7 @@ export default function Layout({ children }) {
       {/* Mobile header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-zinc-950 border-b border-zinc-800">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-            <Shield size={14} className="text-black" />
-          </div>
+          <img src="/icon.svg" alt="AcademyOS" className="w-7 h-7 rounded-md" />
           <span className="font-heading text-base font-bold text-white uppercase">AcademyOS</span>
         </div>
         <div className="flex items-center gap-2">

@@ -39,9 +39,7 @@ export default function Landing() {
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/60 border-b border-zinc-800">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-              <Shield size={18} className="text-black" />
-            </div>
+            <img src="/icon.svg" alt="AcademyOS" className="w-8 h-8 rounded-md" />
             <span className="font-heading text-lg font-bold tracking-tight text-white uppercase">AcademyOS</span>
           </div>
           <div className="flex items-center gap-3">
@@ -138,7 +136,7 @@ export default function Landing() {
       <footer className="border-t border-zinc-800 py-8 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield size={16} className="text-primary" />
+            <img src="/icon.svg" alt="AcademyOS" className="w-5 h-5 rounded-sm" />
             <span className="font-heading text-sm font-semibold text-zinc-400 uppercase">AcademyOS</span>
           </div>
           <p className="text-xs text-zinc-500">&copy; 2025 AcademyOS. {t('landing.allRightsReserved')}</p>
