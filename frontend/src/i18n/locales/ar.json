@@ -54,7 +54,8 @@
     "announcements": "الإعلانات",
     "parentPortal": "بوابة أولياء الأمور",
     "settings": "الإعدادات",
-    "signOut": "تسجيل الخروج"
+    "signOut": "تسجيل الخروج",
+    "seasons": "المواسم"
   },
   "landing": {
     "subtitle": "منصة أكاديميات كرة القدم للناشئين",
@@ -341,5 +342,33 @@
     "noNotifications": "لا توجد إشعارات",
     "sentSuccess": "تم إرسال الإشعار!",
     "markAllRead": "تحديد الكل كمقروء"
+  },
+  "seasons": {
+    "title": "المواسم",
+    "management": "إدارة المواسم",
+    "addSeason": "إضافة موسم",
+    "newSeason": "موسم جديد",
+    "seasonName": "اسم الموسم",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "noSeasons": "لا توجد مواسم",
+    "active": "نشط",
+    "completed": "مكتمل",
+    "upcoming": "قادم",
+    "setActive": "تنشيط",
+    "viewDetails": "عرض التفاصيل",
+    "matchesPlayed": "المباريات",
+    "trainingSessions": "التدريبات",
+    "record": "السجل",
+    "backToSeasons": "العودة إلى المواسم",
+    "overview": "نظرة عامة",
+    "totalMatches": "إجمالي المباريات",
+    "wins": "انتصارات",
+    "draws": "تعادلات",
+    "losses": "هزائم",
+    "goalsFor": "أهداف له",
+    "goalsAgainst": "أهداف عليه",
+    "teamPerformance": "أداء الفريق",
+    "result": "النتيجة"
   }
 }

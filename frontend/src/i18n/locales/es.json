@@ -54,7 +54,8 @@
     "announcements": "Anuncios",
     "parentPortal": "Portal de Padres",
     "settings": "Configuración",
-    "signOut": "Cerrar Sesión"
+    "signOut": "Cerrar Sesión",
+    "seasons": "Temporadas"
   },
   "landing": {
     "subtitle": "Plataforma de Academias de Fútbol Juvenil",
@@ -341,5 +342,33 @@
     "noNotifications": "Sin notificaciones",
     "sentSuccess": "¡Notificación enviada!",
     "markAllRead": "Marcar todo como leído"
+  },
+  "seasons": {
+    "title": "Temporadas",
+    "management": "Gestión de Temporadas",
+    "addSeason": "Agregar Temporada",
+    "newSeason": "Nueva Temporada",
+    "seasonName": "Nombre de Temporada",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "noSeasons": "No hay temporadas creadas",
+    "active": "Activa",
+    "completed": "Completada",
+    "upcoming": "Próxima",
+    "setActive": "Activar",
+    "viewDetails": "Ver Detalles",
+    "matchesPlayed": "Partidos",
+    "trainingSessions": "Entrenamientos",
+    "record": "Récord",
+    "backToSeasons": "Volver a Temporadas",
+    "overview": "Resumen",
+    "totalMatches": "Total Partidos",
+    "wins": "Victorias",
+    "draws": "Empates",
+    "losses": "Derrotas",
+    "goalsFor": "Goles a Favor",
+    "goalsAgainst": "Goles en Contra",
+    "teamPerformance": "Rendimiento del Equipo",
+    "result": "Resultado"
   }
 }

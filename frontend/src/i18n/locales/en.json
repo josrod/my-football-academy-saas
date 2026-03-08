@@ -54,7 +54,8 @@
     "announcements": "Announcements",
     "parentPortal": "Parent Portal",
     "settings": "Settings",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "seasons": "Seasons"
   },
   "landing": {
     "subtitle": "Youth Football Academy Platform",
@@ -341,5 +342,33 @@
     "noNotifications": "No notifications",
     "sentSuccess": "Notification sent!",
     "markAllRead": "Mark all as read"
+  },
+  "seasons": {
+    "title": "Seasons",
+    "management": "Season Management",
+    "addSeason": "Add Season",
+    "newSeason": "New Season",
+    "seasonName": "Season Name",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "noSeasons": "No seasons created yet",
+    "active": "Active",
+    "completed": "Completed",
+    "upcoming": "Upcoming",
+    "setActive": "Set Active",
+    "viewDetails": "View Details",
+    "matchesPlayed": "Matches",
+    "trainingSessions": "Training",
+    "record": "Record",
+    "backToSeasons": "Back to Seasons",
+    "overview": "Overview",
+    "totalMatches": "Total Matches",
+    "wins": "Wins",
+    "draws": "Draws",
+    "losses": "Losses",
+    "goalsFor": "Goals For",
+    "goalsAgainst": "Goals Against",
+    "teamPerformance": "Team Performance",
+    "result": "Result"
   }
 }

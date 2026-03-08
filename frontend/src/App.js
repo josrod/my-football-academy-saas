@@ -21,6 +21,8 @@ import Admin from './pages/Admin';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
+import Seasons from './pages/Seasons';
+import SeasonDetail from './pages/SeasonDetail';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -60,6 +62,8 @@ function App() {
           <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          <Route path="/seasons" element={<ProtectedRoute><Seasons /></ProtectedRoute>} />
+          <Route path="/seasons/:id" element={<ProtectedRoute><SeasonDetail /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

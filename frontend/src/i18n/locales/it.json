@@ -54,7 +54,8 @@
     "announcements": "Comunicazioni",
     "parentPortal": "Portale Genitori",
     "settings": "Impostazioni",
-    "signOut": "Esci"
+    "signOut": "Esci",
+    "seasons": "Stagioni"
   },
   "landing": {
     "subtitle": "Piattaforma per Accademie di Calcio Giovanile",
@@ -341,5 +342,33 @@
     "noNotifications": "Nessuna notifica",
     "sentSuccess": "Notifica inviata!",
     "markAllRead": "Segna tutto come letto"
+  },
+  "seasons": {
+    "title": "Stagioni",
+    "management": "Gestione Stagioni",
+    "addSeason": "Aggiungi Stagione",
+    "newSeason": "Nuova Stagione",
+    "seasonName": "Nome Stagione",
+    "startDate": "Data di Inizio",
+    "endDate": "Data di Fine",
+    "noSeasons": "Nessuna stagione creata",
+    "active": "Attiva",
+    "completed": "Completata",
+    "upcoming": "In Arrivo",
+    "setActive": "Attiva",
+    "viewDetails": "Vedi Dettagli",
+    "matchesPlayed": "Partite",
+    "trainingSessions": "Allenamenti",
+    "record": "Bilancio",
+    "backToSeasons": "Torna alle Stagioni",
+    "overview": "Panoramica",
+    "totalMatches": "Totale Partite",
+    "wins": "Vittorie",
+    "draws": "Pareggi",
+    "losses": "Sconfitte",
+    "goalsFor": "Gol Fatti",
+    "goalsAgainst": "Gol Subiti",
+    "teamPerformance": "Prestazione Squadra",
+    "result": "Risultato"
   }
 }

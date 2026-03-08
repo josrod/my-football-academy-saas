@@ -54,7 +54,8 @@
     "announcements": "Ankündigungen",
     "parentPortal": "Elternportal",
     "settings": "Einstellungen",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "seasons": "Saisons"
   },
   "landing": {
     "subtitle": "Jugendfußball-Akademie Plattform",
@@ -341,5 +342,33 @@
     "noNotifications": "Keine Benachrichtigungen",
     "sentSuccess": "Benachrichtigung gesendet!",
     "markAllRead": "Alle als gelesen markieren"
+  },
+  "seasons": {
+    "title": "Saisons",
+    "management": "Saisonverwaltung",
+    "addSeason": "Saison hinzufügen",
+    "newSeason": "Neue Saison",
+    "seasonName": "Saisonname",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "noSeasons": "Keine Saisons erstellt",
+    "active": "Aktiv",
+    "completed": "Abgeschlossen",
+    "upcoming": "Kommend",
+    "setActive": "Aktivieren",
+    "viewDetails": "Details anzeigen",
+    "matchesPlayed": "Spiele",
+    "trainingSessions": "Training",
+    "record": "Bilanz",
+    "backToSeasons": "Zurück zu Saisons",
+    "overview": "Übersicht",
+    "totalMatches": "Gesamtspiele",
+    "wins": "Siege",
+    "draws": "Unentschieden",
+    "losses": "Niederlagen",
+    "goalsFor": "Tore dafür",
+    "goalsAgainst": "Gegentore",
+    "teamPerformance": "Teamleistung",
+    "result": "Ergebnis"
   }
 }

@@ -274,6 +274,20 @@ class InjuryCreate(BaseModel):
     expected_return: Optional[str] = None
     status: str = "active"
 
+class SeasonCreate(BaseModel):
+    name: str
+    start_date: str
+    end_date: str
+    description: Optional[str] = None
+    status: str = "upcoming"
+
+class SeasonUpdate(BaseModel):
+    name: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+
 # ---- Routes ----
 
 @app.get("/api/health")
@@ -953,6 +967,121 @@ async def update_settings(data: ClubSettingsUpdate, request: Request):
         )
     return {"status": "updated"}
 
+# SEASONS
+@app.post("/api/seasons")
+async def create_season(data: SeasonCreate, request: Request):
+    user = await get_user_from_request(request)
+    doc = {
+        "name": data.name,
+        "start_date": data.start_date,
+        "end_date": data.end_date,
+        "description": data.description or "",
+        "status": data.status,
+        "club_id": user["club_id"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.seasons.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
+@app.get("/api/seasons")
+async def get_seasons(request: Request):
+    user = await get_user_from_request(request)
+    seasons = await db.seasons.find({"club_id": user["club_id"]}).sort("start_date", -1).to_list(100)
+    result = []
+    for s in seasons:
+        s_data = str_id(s)
+        # Attach stats: matches and training count within season date range
+        match_count = await db.matches.count_documents({
+            "club_id": user["club_id"],
+            "date": {"$gte": s_data["start_date"], "$lte": s_data["end_date"]}
+        })
+        training_count = await db.training_sessions.count_documents({
+            "club_id": user["club_id"],
+            "date": {"$gte": s_data["start_date"], "$lte": s_data["end_date"]}
+        })
+        matches_in_range = await db.matches.find({
+            "club_id": user["club_id"],
+            "date": {"$gte": s_data["start_date"], "$lte": s_data["end_date"]},
+            "status": "completed"
+        }).to_list(500)
+        wins = sum(1 for m in matches_in_range if (m.get("home_score") or 0) > (m.get("away_score") or 0))
+        losses = sum(1 for m in matches_in_range if (m.get("home_score") or 0) < (m.get("away_score") or 0))
+        draws = sum(1 for m in matches_in_range if (m.get("home_score") or 0) == (m.get("away_score") or 0))
+        s_data["stats"] = {
+            "matches": match_count,
+            "training_sessions": training_count,
+            "wins": wins, "losses": losses, "draws": draws,
+            "completed_matches": len(matches_in_range)
+        }
+        result.append(s_data)
+    return result
+
+@app.get("/api/seasons/{season_id}")
+async def get_season(season_id: str, request: Request):
+    user = await get_user_from_request(request)
+    season = await db.seasons.find_one({"_id": ObjectId(season_id), "club_id": user["club_id"]})
+    if not season:
+        raise HTTPException(status_code=404, detail="Season not found")
+    s_data = str_id(season)
+    # Matches in this season
+    matches = await db.matches.find({
+        "club_id": user["club_id"],
+        "date": {"$gte": s_data["start_date"], "$lte": s_data["end_date"]}
+    }).sort("date", 1).to_list(200)
+    s_data["matches"] = str_ids(matches)
+    # Training sessions in this season
+    training = await db.training_sessions.find({
+        "club_id": user["club_id"],
+        "date": {"$gte": s_data["start_date"], "$lte": s_data["end_date"]}
+    }).sort("date", 1).to_list(200)
+    s_data["training_sessions"] = str_ids(training)
+    # Stats
+    completed = [m for m in matches if m.get("status") == "completed"]
+    wins = sum(1 for m in completed if (m.get("home_score") or 0) > (m.get("away_score") or 0))
+    losses = sum(1 for m in completed if (m.get("home_score") or 0) < (m.get("away_score") or 0))
+    draws = sum(1 for m in completed if (m.get("home_score") or 0) == (m.get("away_score") or 0))
+    goals_for = sum(m.get("home_score") or 0 for m in completed)
+    goals_against = sum(m.get("away_score") or 0 for m in completed)
+    s_data["stats"] = {
+        "total_matches": len(matches), "completed_matches": len(completed),
+        "total_training": len(training),
+        "wins": wins, "losses": losses, "draws": draws,
+        "goals_for": goals_for, "goals_against": goals_against
+    }
+    # Teams info
+    teams = await db.teams.find({"club_id": user["club_id"]}, {"_id": 1, "name": 1, "category": 1, "color": 1}).to_list(50)
+    s_data["teams"] = str_ids(teams)
+    return s_data
+
+@app.put("/api/seasons/{season_id}")
+async def update_season(season_id: str, data: SeasonUpdate, request: Request):
+    user = await get_user_from_request(request)
+    update = {k: v for k, v in data.dict().items() if v is not None}
+    if not update:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    # If setting to active, deactivate other seasons
+    if update.get("status") == "active":
+        await db.seasons.update_many(
+            {"club_id": user["club_id"], "status": "active"},
+            {"$set": {"status": "completed"}}
+        )
+    await db.seasons.update_one(
+        {"_id": ObjectId(season_id), "club_id": user["club_id"]},
+        {"$set": update}
+    )
+    updated = await db.seasons.find_one({"_id": ObjectId(season_id)})
+    return str_id(updated)
+
+@app.delete("/api/seasons/{season_id}")
+async def delete_season(season_id: str, request: Request):
+    user = await get_user_from_request(request)
+    result = await db.seasons.delete_one({"_id": ObjectId(season_id), "club_id": user["club_id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Season not found")
+    return {"status": "deleted"}
+
 # FILE UPLOAD
 @app.post("/api/upload")
 async def upload_file(request: Request, file: UploadFile = File(...)):
@@ -1365,6 +1494,35 @@ async def seed_data():
             "created_at": now.isoformat()
         })
     
+    # Create seasons
+    await db.seasons.insert_one({
+        "name": "2024-2025 Season",
+        "start_date": "2024-09-01",
+        "end_date": "2025-06-30",
+        "description": "Previous season - foundation year for all teams. Strong development across U10-U16 squads.",
+        "status": "completed",
+        "club_id": club_id,
+        "created_at": (now - timedelta(days=180)).isoformat()
+    })
+    await db.seasons.insert_one({
+        "name": "2025-2026 Season",
+        "start_date": "2025-09-01",
+        "end_date": "2026-06-30",
+        "description": "Current active season. Focus on competitive play and player development pathways.",
+        "status": "active",
+        "club_id": club_id,
+        "created_at": (now - timedelta(days=30)).isoformat()
+    })
+    await db.seasons.insert_one({
+        "name": "Summer Camp 2026",
+        "start_date": "2026-07-01",
+        "end_date": "2026-08-31",
+        "description": "Intensive summer training camp with guest coaches and friendly tournaments.",
+        "status": "upcoming",
+        "club_id": club_id,
+        "created_at": now.isoformat()
+    })
+    
     return {
         "status": "seeded",
         "data": {
@@ -1374,6 +1532,7 @@ async def seed_data():
             "training_sessions": 10,
             "matches": 6,
             "announcements": 5,
+            "seasons": 3,
             "credentials": {
                 "admin": {"email": "admin@academy.com", "password": "admin123"},
                 "coach": {"email": "carlos@academy.com", "password": "coach123"},
