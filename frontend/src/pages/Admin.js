@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { Users, Loader2, Trash2, Shield } from 'lucide-react';
 
 export default function Admin() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,8 +28,8 @@ export default function Admin() {
   return (
     <div data-testid="admin-page">
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">Administration</p>
-        <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">User Management</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{t('admin.title')}</p>
+        <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('admin.userManagement')}</h1>
       </div>
 
       {loading ? (

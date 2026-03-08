@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { Dumbbell, Plus, Loader2, Users, MapPin, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Training() {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +41,12 @@ export default function Training() {
     <div data-testid="training-page">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">Training</p>
-          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">Training Sessions</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{t('training.title')}</p>
+          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('training.sessions')}</h1>
         </div>
         <button onClick={() => setShowCreate(!showCreate)} data-testid="add-training-button"
           className="flex items-center gap-2 bg-primary text-black text-xs uppercase tracking-wide font-semibold px-5 py-2.5 rounded-md hover:bg-primary/90 transition-all">
-          <Plus size={16} /> New Session
+          <Plus size={16} /> {t('training.newSession')}
         </button>
       </div>
 

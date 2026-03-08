@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { Megaphone, Plus, Loader2, Trash2, AlertTriangle } from 'lucide-react';
@@ -6,6 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function Announcements() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -36,13 +38,13 @@ export default function Announcements() {
     <div data-testid="announcements-page">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">Communication</p>
-          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">Announcements</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{t('announcements.title')}</p>
+          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('announcements.feed')}</h1>
         </div>
         {isAdmin && (
           <button onClick={() => setShowCreate(!showCreate)} data-testid="add-announcement-button"
             className="flex items-center gap-2 bg-primary text-black text-xs uppercase tracking-wide font-semibold px-5 py-2.5 rounded-md hover:bg-primary/90 transition-all">
-            <Plus size={16} /> Post Update
+            <Plus size={16} /> {t('announcements.postUpdate')}
           </button>
         )}
       </div>
@@ -109,7 +111,7 @@ export default function Announcements() {
               <p className="text-sm text-zinc-400 leading-relaxed pl-[30px]">{a.content}</p>
             </motion.div>
           ))}
-          {announcements.length === 0 && <p className="text-center py-10 text-sm text-zinc-500">No announcements yet</p>}
+          {announcements.length === 0 && <p className="text-center py-10 text-sm text-zinc-500">{t('announcements.noAnnouncements')}</p>}
         </div>
       )}
     </div>

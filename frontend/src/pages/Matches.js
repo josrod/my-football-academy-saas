@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { Swords, Plus, Loader2, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Matches() {
+  const { t } = useTranslation();
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,12 +35,12 @@ export default function Matches() {
     <div data-testid="matches-page">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">Matches</p>
-          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">Match Center</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{t('matches.title')}</p>
+          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('matches.matchCenter')}</h1>
         </div>
         <button onClick={() => setShowCreate(!showCreate)} data-testid="add-match-button"
           className="flex items-center gap-2 bg-primary text-black text-xs uppercase tracking-wide font-semibold px-5 py-2.5 rounded-md hover:bg-primary/90 transition-all">
-          <Plus size={16} /> New Match
+          <Plus size={16} /> {t('matches.newMatch')}
         </button>
       </div>
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { ArrowLeft, Shield, Users, Dumbbell, Swords, Loader2 } from 'lucide-react';
 
 export default function TeamProfile() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +20,7 @@ export default function TeamProfile() {
   return (
     <div data-testid="team-profile-page">
       <Link to="/teams" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white mb-6 transition-colors">
-        <ArrowLeft size={14} /> Back to Teams
+        <ArrowLeft size={14} /> {t('teams.backToTeams')}
       </Link>
 
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 mb-6">
@@ -38,7 +40,7 @@ export default function TeamProfile() {
         <div className="lg:col-span-2 bg-zinc-900/50 border border-zinc-800 rounded-xl p-6" data-testid="team-roster">
           <div className="flex items-center gap-2 mb-4">
             <Users size={18} className="text-primary" />
-            <h3 className="font-heading text-lg font-semibold text-white uppercase">Roster</h3>
+            <h3 className="font-heading text-lg font-semibold text-white uppercase">{t('teams.roster')}</h3>
           </div>
           {team.players?.length > 0 ? (
             <div className="overflow-x-auto">
@@ -73,7 +75,7 @@ export default function TeamProfile() {
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6" data-testid="team-training-history">
             <div className="flex items-center gap-2 mb-4">
               <Dumbbell size={18} className="text-amber-400" />
-              <h3 className="font-heading text-base font-semibold text-white uppercase">Recent Training</h3>
+              <h3 className="font-heading text-base font-semibold text-white uppercase">{t('teams.recentTraining')}</h3>
             </div>
             {team.training_sessions?.length > 0 ? (
               <div className="space-y-2">
@@ -90,7 +92,7 @@ export default function TeamProfile() {
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6" data-testid="team-matches-history">
             <div className="flex items-center gap-2 mb-4">
               <Swords size={18} className="text-blue-400" />
-              <h3 className="font-heading text-base font-semibold text-white uppercase">Recent Matches</h3>
+              <h3 className="font-heading text-base font-semibold text-white uppercase">{t('teams.recentMatches')}</h3>
             </div>
             {team.matches?.length > 0 ? (
               <div className="space-y-2">

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { ArrowLeft, Swords, Loader2, MapPin, Clock, Trophy } from 'lucide-react';
 
 export default function MatchReport() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +20,7 @@ export default function MatchReport() {
   return (
     <div data-testid="match-report-page">
       <Link to="/matches" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white mb-6 transition-colors">
-        <ArrowLeft size={14} /> Back to Matches
+        <ArrowLeft size={14} /> {t('matches.backToMatches')}
       </Link>
 
       {/* Match header */}
@@ -53,7 +55,7 @@ export default function MatchReport() {
       {/* Player stats */}
       {match.player_stats?.length > 0 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6" data-testid="match-player-stats">
-          <h3 className="font-heading text-lg font-semibold text-white uppercase mb-4">Player Performance</h3>
+          <h3 className="font-heading text-lg font-semibold text-white uppercase mb-4">{t('matches.playerPerformance')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead><tr className="border-b border-zinc-800">

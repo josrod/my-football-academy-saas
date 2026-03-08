@@ -1,35 +1,45 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Shield, Dumbbell, Swords, CalendarDays,
-  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, ChevronDown
+  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe
 } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/players', label: 'Players', icon: Users },
-  { path: '/teams', label: 'Teams', icon: Shield },
-  { path: '/training', label: 'Training', icon: Dumbbell },
-  { path: '/matches', label: 'Matches', icon: Swords },
-  { path: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { path: '/scouting', label: 'Scouting', icon: Search },
-  { path: '/reports', label: 'Reports', icon: FileBarChart },
-  { path: '/announcements', label: 'Announcements', icon: Megaphone },
-  { path: '/parent-portal', label: 'Parent Portal', icon: Eye },
-  { path: '/settings', label: 'Settings', icon: Settings },
+const LANGS = [
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+  { code: 'es', label: 'ES', flag: '🇪🇸' },
+  { code: 'de', label: 'DE', flag: '🇩🇪' },
 ];
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const NAV_ITEMS = [
+    { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { path: '/players', label: t('nav.players'), icon: Users },
+    { path: '/teams', label: t('nav.teams'), icon: Shield },
+    { path: '/training', label: t('nav.training'), icon: Dumbbell },
+    { path: '/matches', label: t('nav.matches'), icon: Swords },
+    { path: '/calendar', label: t('nav.calendar'), icon: CalendarDays },
+    { path: '/scouting', label: t('nav.scouting'), icon: Search },
+    { path: '/reports', label: t('nav.reports'), icon: FileBarChart },
+    { path: '/announcements', label: t('nav.announcements'), icon: Megaphone },
+    { path: '/parent-portal', label: t('nav.parentPortal'), icon: Eye },
+    { path: '/settings', label: t('nav.settings'), icon: Settings },
+  ];
+
+  const handleLogout = () => { logout(); navigate('/login'); };
+
+  const switchLang = (code) => { i18n.changeLanguage(code); setLangOpen(false); };
+
+  const currentLang = LANGS.find(l => l.code === i18n.language?.substring(0, 2)) || LANGS[0];
 
   return (
     <div className="flex h-screen bg-background overflow-hidden font-body" data-testid="app-layout">
@@ -46,22 +56,44 @@ export default function Layout({ children }) {
           {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
             const active = location.pathname === path || location.pathname.startsWith(path + '/');
             return (
-              <Link
-                key={path}
-                to={path}
-                data-testid={`nav-${label.toLowerCase().replace(/\s/g, '-')}`}
+              <Link key={path} to={path}
+                data-testid={`nav-${path.replace('/', '').replace('/', '-')}`}
                 className={`flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
                   active
                     ? 'text-primary bg-primary/10 border-l-2 border-primary'
                     : 'text-zinc-400 hover:text-white hover:bg-white/5 border-l-2 border-transparent'
-                }`}
-              >
+                }`}>
                 <Icon size={18} />
                 <span>{label}</span>
               </Link>
             );
           })}
         </nav>
+
+        {/* Language Switcher */}
+        <div className="px-4 py-3 border-t border-zinc-800">
+          <div className="relative">
+            <button onClick={() => setLangOpen(!langOpen)} data-testid="language-switcher"
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors">
+              <Globe size={14} />
+              <span>{t('common.language')}: {currentLang.label}</span>
+            </button>
+            {langOpen && (
+              <div className="absolute bottom-full left-0 w-full mb-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden shadow-xl z-50">
+                {LANGS.map(lang => (
+                  <button key={lang.code} onClick={() => switchLang(lang.code)}
+                    data-testid={`lang-${lang.code}`}
+                    className={`w-full flex items-center gap-2 px-4 py-2.5 text-xs transition-colors ${
+                      currentLang.code === lang.code ? 'text-primary bg-primary/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    }`}>
+                    <span>{lang.flag}</span>
+                    <span>{lang.code === 'en' ? t('common.english') : lang.code === 'es' ? t('common.spanish') : t('common.german')}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="p-4 border-t border-zinc-800">
           <div className="flex items-center gap-3 mb-3">
@@ -73,13 +105,10 @@ export default function Layout({ children }) {
               <p className="text-xs text-zinc-500 truncate">{user?.role || 'admin'}</p>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            data-testid="logout-button"
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-red-400 hover:bg-red-400/5 rounded-md transition-colors"
-          >
+          <button onClick={handleLogout} data-testid="logout-button"
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-red-400 hover:bg-red-400/5 rounded-md transition-colors">
             <LogOut size={14} />
-            <span>Sign Out</span>
+            <span>{t('nav.signOut')}</span>
           </button>
         </div>
       </aside>
@@ -92,9 +121,29 @@ export default function Layout({ children }) {
           </div>
           <span className="font-heading text-base font-bold text-white uppercase">AcademyOS</span>
         </div>
-        <button onClick={() => setMobileOpen(!mobileOpen)} data-testid="mobile-menu-toggle" className="text-zinc-400 hover:text-white">
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button onClick={() => setLangOpen(!langOpen)} className="text-zinc-400 hover:text-white px-2">
+              <Globe size={18} />
+            </button>
+            {langOpen && (
+              <div className="absolute right-0 top-full mt-1 w-36 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden shadow-xl z-50">
+                {LANGS.map(lang => (
+                  <button key={lang.code} onClick={() => switchLang(lang.code)}
+                    className={`w-full flex items-center gap-2 px-4 py-2.5 text-xs ${
+                      currentLang.code === lang.code ? 'text-primary bg-primary/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                    }`}>
+                    <span>{lang.flag}</span>
+                    <span>{lang.code === 'en' ? 'English' : lang.code === 'es' ? 'Español' : 'Deutsch'}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={() => setMobileOpen(!mobileOpen)} data-testid="mobile-menu-toggle" className="text-zinc-400 hover:text-white">
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -106,23 +155,18 @@ export default function Layout({ children }) {
               {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
                 const active = location.pathname === path;
                 return (
-                  <Link
-                    key={path}
-                    to={path}
-                    onClick={() => setMobileOpen(false)}
+                  <Link key={path} to={path} onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-md ${
                       active ? 'text-primary bg-primary/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span>{label}</span>
+                    }`}>
+                    <Icon size={18} /><span>{label}</span>
                   </Link>
                 );
               })}
             </nav>
             <div className="p-4 border-t border-zinc-800 mt-4">
               <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-red-400 rounded-md">
-                <LogOut size={14} /><span>Sign Out</span>
+                <LogOut size={14} /><span>{t('nav.signOut')}</span>
               </button>
             </div>
           </aside>
