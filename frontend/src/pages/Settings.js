@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { Settings as SettingsIcon, Save, Loader2 } from 'lucide-react';
+import { Save, Loader2, Upload, Image } from 'lucide-react';
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -9,6 +9,8 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
 
   useEffect(() => {
     api.get('/api/settings').then(setSettings).catch(console.error).finally(() => setLoading(false));
@@ -19,17 +21,25 @@ export default function Settings() {
     setSaving(true);
     try {
       await api.put('/api/settings', {
-        name: settings.name,
-        address: settings.address,
-        phone: settings.phone,
-        email: settings.email,
-        website: settings.website,
-        founded_year: settings.founded_year,
+        name: settings.name, address: settings.address, phone: settings.phone,
+        email: settings.email, website: settings.website, founded_year: settings.founded_year,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (err) { console.error(err); }
     finally { setSaving(false); }
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const result = await api.upload('/api/upload', file);
+      await api.put('/api/settings', { logo_url: result.storage_path });
+      setSettings({ ...settings, logo_url: result.storage_path });
+    } catch (err) { console.error(err); }
+    finally { setUploading(false); }
   };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-primary" /></div>;
@@ -43,6 +53,29 @@ export default function Settings() {
 
       {settings && (
         <div className="max-w-2xl">
+          {/* Club Logo */}
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 mb-6" data-testid="club-logo-section">
+            <label className="block text-[13px] font-medium text-zinc-300 mb-3">Club Logo</label>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center overflow-hidden">
+                {settings.logo_url ? (
+                  <img src={api.fileUrl(settings.logo_url)} alt="Club logo" className="w-full h-full object-cover" data-testid="club-logo-img" />
+                ) : (
+                  <Image size={24} className="text-zinc-600" />
+                )}
+              </div>
+              <div>
+                <input ref={fileRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" data-testid="logo-upload-input" />
+                <button onClick={() => fileRef.current?.click()} disabled={uploading} data-testid="logo-upload-btn"
+                  className="flex items-center gap-2 bg-zinc-800 text-zinc-300 text-xs uppercase tracking-wide font-semibold px-4 py-2.5 rounded-md hover:bg-zinc-700 transition-all disabled:opacity-50">
+                  {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                  {uploading ? 'Uploading...' : 'Upload Logo'}
+                </button>
+                <p className="text-[11px] text-zinc-500 mt-1.5">JPG, PNG, WebP (max 5MB)</p>
+              </div>
+            </div>
+          </div>
+
           <form onSubmit={handleSave} className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 space-y-5" data-testid="settings-form">
             <div>
               <label className="block text-[13px] font-medium text-zinc-300 mb-2">{t('settings.clubName')}</label>

@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
@@ -11,6 +12,8 @@ import hmac
 import secrets
 import jwt
 import random
+import uuid
+import requests as http_requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -93,6 +96,48 @@ async def get_user_from_request(request: Request):
         "name": user.get("name", ""),
         "email": user.get("email", "")
     }
+
+# ---- Object Storage ----
+STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
+APP_NAME = "academyos"
+storage_key = None
+
+def init_storage():
+    global storage_key
+    if storage_key:
+        return storage_key
+    resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
+    resp.raise_for_status()
+    storage_key = resp.json()["storage_key"]
+    return storage_key
+
+def put_object(path: str, data: bytes, content_type: str) -> dict:
+    key = init_storage()
+    resp = http_requests.put(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key, "Content-Type": content_type},
+        data=data, timeout=120
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+def get_object(path: str):
+    key = init_storage()
+    resp = http_requests.get(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key}, timeout=60
+    )
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+
+@app.on_event("startup")
+async def startup():
+    try:
+        init_storage()
+        print("Storage initialized successfully")
+    except Exception as e:
+        print(f"Storage init warning: {e}")
 
 # ---- Pydantic Models ----
 class SignupRequest(BaseModel):
@@ -907,6 +952,59 @@ async def update_settings(data: ClubSettingsUpdate, request: Request):
             {"$set": update}
         )
     return {"status": "updated"}
+
+# FILE UPLOAD
+@app.post("/api/upload")
+async def upload_file(request: Request, file: UploadFile = File(...)):
+    user = await get_user_from_request(request)
+    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "bin"
+    allowed = {"jpg", "jpeg", "png", "gif", "webp"}
+    if ext not in allowed:
+        raise HTTPException(status_code=400, detail=f"File type .{ext} not allowed. Use: {', '.join(allowed)}")
+    
+    data = await file.read()
+    if len(data) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large (max 5MB)")
+    
+    file_id = str(uuid.uuid4())
+    path = f"{APP_NAME}/uploads/{user['club_id']}/{file_id}.{ext}"
+    content_type = file.content_type or f"image/{ext}"
+    
+    result = put_object(path, data, content_type)
+    
+    doc = {
+        "file_id": file_id,
+        "storage_path": result["path"],
+        "original_filename": file.filename,
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "club_id": user["club_id"],
+        "uploaded_by": user["user_id"],
+        "is_deleted": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.files.insert_one(doc)
+    
+    return {"file_id": file_id, "storage_path": result["path"], "url": f"/api/files/{result['path']}"}
+
+@app.get("/api/files/{path:path}")
+async def download_file(path: str, request: Request, auth: str = Query(None)):
+    # Support both header and query param auth
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer ") and auth:
+        auth_header = f"Bearer {auth}"
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing auth")
+    
+    token = auth_header.split(" ")[1]
+    decode_token(token)
+    
+    record = await db.files.find_one({"storage_path": path, "is_deleted": False})
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    data, ct = get_object(path)
+    return Response(content=data, media_type=record.get("content_type", ct))
 
 # USER LANGUAGE PREFERENCE
 @app.put("/api/user/language")

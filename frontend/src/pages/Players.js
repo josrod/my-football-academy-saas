@@ -128,8 +128,15 @@ export default function Players() {
                   <tr key={p.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                     <td className="px-5 py-3.5 text-sm text-zinc-400 font-mono">{p.jersey_number || '-'}</td>
                     <td className="px-5 py-3.5">
-                      <Link to={`/players/${p.id}`} className="text-sm font-medium text-white hover:text-primary transition-colors" data-testid={`player-link-${i}`}>
-                        {p.first_name} {p.last_name}
+                      <Link to={`/players/${p.id}`} className="flex items-center gap-3 text-sm font-medium text-white hover:text-primary transition-colors" data-testid={`player-link-${i}`}>
+                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[11px] font-semibold text-zinc-400 flex-shrink-0 overflow-hidden">
+                          {p.photo_url ? (
+                            <img src={api.fileUrl(p.photo_url)} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            `${p.first_name?.[0] || ''}${p.last_name?.[0] || ''}`
+                          )}
+                        </div>
+                        <span>{p.first_name} {p.last_name}</span>
                       </Link>
                     </td>
                     <td className="px-5 py-3.5 text-sm text-zinc-400">{p.position}</td>

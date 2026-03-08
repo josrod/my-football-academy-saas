@@ -24,6 +24,25 @@ const api = {
   post: (path, data) => request(path, { method: 'POST', body: JSON.stringify(data) }),
   put: (path, data) => request(path, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (path) => request(path, { method: 'DELETE' }),
+  upload: async (path, file) => {
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: formData
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Upload failed' }));
+      throw new Error(err.detail || 'Upload failed');
+    }
+    return res.json();
+  },
+  fileUrl: (storagePath) => {
+    const token = localStorage.getItem('token');
+    return `${API}/api/files/${storagePath}?auth=${token}`;
+  }
 };
 
 export default api;

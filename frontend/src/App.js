@@ -20,6 +20,7 @@ import Announcements from './pages/Announcements';
 import Admin from './pages/Admin';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
+import Notifications from './pages/Notifications';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -55,6 +56,7 @@ function App() {
           <Route path="/scouting" element={<ProtectedRoute><Scouting /></ProtectedRoute>} />
           <Route path="/parent-portal" element={<ProtectedRoute><ParentPortal /></ProtectedRoute>} />
           <Route path="/announcements" element={<ProtectedRoute><Announcements /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />

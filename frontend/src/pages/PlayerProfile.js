@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { ArrowLeft, Loader2, User, BarChart3, HeartPulse, Swords, Dumbbell, Search, Star } from 'lucide-react';
+import { ArrowLeft, Loader2, User, BarChart3, HeartPulse, Swords, Dumbbell, Search, Star, Camera } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -12,6 +12,8 @@ export default function PlayerProfile() {
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('overview');
+  const [uploading, setUploading] = useState(false);
+  const photoRef = useRef();
 
   const TABS = [
     { key: 'overview', label: t('players.overview'), icon: User },
@@ -42,6 +44,18 @@ export default function PlayerProfile() {
   const presentCount = player.attendance?.filter(a => a.status === 'present').length || 0;
   const attendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : 0;
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const result = await api.upload('/api/upload', file);
+      await api.put(`/api/players/${id}`, { photo_url: result.storage_path });
+      setPlayer({ ...player, photo_url: result.storage_path });
+    } catch (err) { console.error(err); }
+    finally { setUploading(false); }
+  };
+
   return (
     <div data-testid="player-profile-page">
       <Link to="/players" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white mb-6 transition-colors" data-testid="back-to-players">
@@ -50,8 +64,19 @@ export default function PlayerProfile() {
 
       <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 mb-6" data-testid="player-header">
         <div className="flex flex-col md:flex-row md:items-center gap-6">
-          <div className="w-20 h-20 rounded-xl bg-zinc-800 flex items-center justify-center text-2xl font-heading font-bold text-primary">
-            {player.jersey_number || '—'}
+          <div className="relative group">
+            <div className="w-20 h-20 rounded-xl bg-zinc-800 flex items-center justify-center text-2xl font-heading font-bold text-primary overflow-hidden">
+              {player.photo_url ? (
+                <img src={api.fileUrl(player.photo_url)} alt="" className="w-full h-full object-cover" data-testid="player-photo-img" />
+              ) : (
+                player.jersey_number || '—'
+              )}
+            </div>
+            <input ref={photoRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" data-testid="player-photo-input" />
+            <button onClick={() => photoRef.current?.click()} disabled={uploading} data-testid="player-photo-upload-btn"
+              className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              {uploading ? <Loader2 size={18} className="animate-spin text-white" /> : <Camera size={18} className="text-white" />}
+            </button>
           </div>
           <div className="flex-1">
             <h1 className="font-heading text-3xl font-bold text-white uppercase">{player.first_name} {player.last_name}</h1>

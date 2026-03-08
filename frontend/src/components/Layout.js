@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import api from '../api';
 import {
   LayoutDashboard, Users, Shield, Dumbbell, Swords, CalendarDays,
-  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe
+  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell
 } from 'lucide-react';
 
 const LANGS = [
@@ -24,6 +25,20 @@ export default function Layout({ children }) {
   const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnread = useCallback(async () => {
+    try {
+      const notifs = await api.get('/api/notifications');
+      setUnreadCount(notifs.filter(n => !n.is_read).length);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [fetchUnread]);
 
   const NAV_ITEMS = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
@@ -35,6 +50,7 @@ export default function Layout({ children }) {
     { path: '/scouting', label: t('nav.scouting'), icon: Search },
     { path: '/reports', label: t('nav.reports'), icon: FileBarChart },
     { path: '/announcements', label: t('nav.announcements'), icon: Megaphone },
+    { path: '/notifications', label: t('common.notifications'), icon: Bell, badge: unreadCount },
     { path: '/parent-portal', label: t('nav.parentPortal'), icon: Eye },
     { path: '/settings', label: t('nav.settings'), icon: Settings },
   ];
@@ -65,7 +81,7 @@ export default function Layout({ children }) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
+          {NAV_ITEMS.map(({ path, label, icon: Icon, badge }) => {
             const active = location.pathname === path || location.pathname.startsWith(path + '/');
             return (
               <Link key={path} to={path}
@@ -76,7 +92,12 @@ export default function Layout({ children }) {
                     : 'text-zinc-400 hover:text-white hover:bg-white/5 border-l-2 border-transparent'
                 }`}>
                 <Icon size={18} />
-                <span>{label}</span>
+                <span className="flex-1">{label}</span>
+                {badge > 0 && (
+                  <span className="min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-black text-[10px] font-bold px-1" data-testid="notification-badge">
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
               </Link>
             );
           })}
