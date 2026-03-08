@@ -44,7 +44,7 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 
 ### Frontend (React)
 - 18+ screens implemented:
-  1. Landing page (public)
+  1. Landing page (public) with language switcher
   2. Login page with demo credentials
   3. Signup page
   4. Dashboard (stats widgets + Recharts charts + announcements)
@@ -62,6 +62,11 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
   16. Admin (user management)
   17. Settings (club settings form)
   18. Reports (analytics with pie/bar charts)
+- **i18n (Internationalization)** - Full support for English, Spanish, and German using react-i18next
+  - Language switcher on landing page (EN/ES/DE buttons)
+  - Language switcher in sidebar (Globe icon with dropdown)
+  - All page titles, navigation, form labels, buttons, status labels translated
+  - Language preference persisted in localStorage
 - Sidebar navigation (Linear-style)
 - Dark theme with green (#22c55e) accents
 - Mobile responsive with hamburger menu

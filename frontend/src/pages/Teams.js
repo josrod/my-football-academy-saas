@@ -6,7 +6,7 @@ import { Shield, Plus, Users, Loader2, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Teams() {
-  const { t } = useTranslation();
+  const { t: tr } = useTranslation();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -31,19 +31,19 @@ export default function Teams() {
     <div data-testid="teams-page">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{t('teams.title')}</p>
-          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('teams.management')}</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1">{tr('teams.title')}</p>
+          <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{tr('teams.management')}</h1>
         </div>
         <button onClick={() => setShowCreate(!showCreate)} data-testid="add-team-button"
           className="flex items-center gap-2 bg-primary text-black text-xs uppercase tracking-wide font-semibold px-5 py-2.5 rounded-md hover:bg-primary/90 transition-all">
-          <Plus size={16} /> {t('teams.addTeam')}
+          <Plus size={16} /> {tr('teams.addTeam')}
         </button>
       </div>
 
       {showCreate && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
           className="bg-zinc-900/80 border border-zinc-800 rounded-xl p-6 mb-6 backdrop-blur-sm" data-testid="create-team-form">
-          <h3 className="font-heading text-lg font-semibold text-white uppercase mb-4">{t('teams.newTeam')}</h3>
+          <h3 className="font-heading text-lg font-semibold text-white uppercase mb-4">{tr('teams.newTeam')}</h3>
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input placeholder="Team Name" required value={form.name} onChange={e => setForm({...form, name: e.target.value})}
               className="bg-zinc-950 border border-zinc-800 rounded-md px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-primary" />
@@ -81,12 +81,12 @@ export default function Teams() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users size={14} className="text-zinc-500" />
-                  <span className="text-sm text-zinc-400">{t.player_count} {t('teams.players')}</span>
+                  <span className="text-sm text-zinc-400">{t.player_count} {tr('teams.players')}</span>
                 </div>
               </Link>
             </motion.div>
           ))}
-          {teams.length === 0 && <p className="col-span-full text-center py-10 text-sm text-zinc-500">{t('teams.noTeams')}</p>}
+          {teams.length === 0 && <p className="col-span-full text-center py-10 text-sm text-zinc-500">{tr('teams.noTeams')}</p>}
         </div>
       )}
     </div>

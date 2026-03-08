@@ -68,7 +68,9 @@ export default function Landing() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <p className="text-xs uppercase tracking-[0.3em] text-primary font-semibold mb-6">{t('landing.subtitle')}</p>
             <h1 className="font-heading text-5xl md:text-7xl font-bold tracking-tight text-white uppercase leading-[0.95] mb-6">
-              {t('landing.heroTitle1')}<br />{t('landing.heroTitle2')}<br /><span className="text-primary">{t('landing.heroTitle3')}</span>
+              {t('landing.heroTitle1')}<br />
+              {t('landing.heroTitle2')}<br />
+              <span className="text-primary">{t('landing.heroTitle3')}</span>
             </h1>
             <p className="text-lg text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed">{t('landing.heroDesc')}</p>
             <div className="flex items-center justify-center gap-4">
