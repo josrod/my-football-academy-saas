@@ -30,43 +30,31 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - Admin user management
 - Club settings
 
-## What's Been Implemented (Jan 2026)
+## What's Been Implemented
+
 ### Backend (FastAPI)
-- Full REST API with 30+ endpoints
+- Full REST API with 35+ endpoints
 - JWT auth (signup, login, me)
 - All CRUD operations for: players, teams, training, matches, calendar events, announcements, evaluations, injuries, metrics
 - Dashboard aggregation endpoint with charts data
 - Parent portal endpoints
 - Admin user management
 - Club settings
+- **User language preference** (PUT/GET /api/user/language)
+- **Mock parent notification system** (CRUD /api/notifications with email_simulated flag)
 - Seed data endpoint (1 club, 4 teams, 60 players, 10 training sessions, 6 matches, 5 announcements, 15 evaluations)
 - Multi-tenant club_id filtering on all queries
 
 ### Frontend (React)
-- 18+ screens implemented:
-  1. Landing page (public) with language switcher
-  2. Login page with demo credentials
-  3. Signup page
-  4. Dashboard (stats widgets + Recharts charts + announcements)
-  5. Players list (search, filters, table view)
-  6. Player profile (6 tabs: Overview, Metrics, Medical, Matches, Training, Scouting)
-  7. Teams list (card grid)
-  8. Team profile (roster, training, matches)
-  9. Training sessions (list + attendance detail)
-  10. Matches list
-  11. Match report (scoreboard + player stats)
-  12. Calendar (FullCalendar with events)
-  13. Scouting/Evaluations (radar charts)
-  14. Parent portal (player overview, schedule, announcements)
-  15. Announcements feed
-  16. Admin (user management)
-  17. Settings (club settings form)
-  18. Reports (analytics with pie/bar charts)
-- **i18n (Internationalization)** - Full support for English, Spanish, and German using react-i18next
-  - Language switcher on landing page (EN/ES/DE buttons)
-  - Language switcher in sidebar (Globe icon with dropdown)
+- 18+ screens implemented
+- **i18n (Internationalization)** - Full support for 7 languages:
+  - English, Spanish, German, French, Portuguese, Italian, Arabic
+  - Language switcher on landing page (7 language buttons)
+  - Language switcher in sidebar (Globe icon with dropdown, all 7 languages)
   - All page titles, navigation, form labels, buttons, status labels translated
-  - Language preference persisted in localStorage
+  - **RTL support for Arabic** (dynamic dir="rtl" on html element)
+  - **User language preference persistence** (saved to DB on change, applied on login)
+  - Language preference persisted in localStorage + backend
 - Sidebar navigation (Linear-style)
 - Dark theme with green (#22c55e) accents
 - Mobile responsive with hamburger menu
@@ -83,9 +71,9 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - Demo users: admin, 4 coaches, 1 parent
 
 ## Testing Status
-- Backend: 100% (21/21 API tests passed)
-- Frontend: 95% (16/17 UI tests passed)
-- One LOW priority issue: mobile menu toggle automation timing
+- Backend: 100% (18/18 API tests passed - iteration 3)
+- Frontend: 95% (22/23 UI tests passed - iteration 3)
+- Previous iterations: iteration_1 (21/21 backend), iteration_2 (16/17 frontend)
 
 ## Demo Credentials
 - Admin: admin@academy.com / admin123
@@ -101,12 +89,17 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - [x] Team management
 - [x] Training & attendance
 - [x] Match management
+- [x] i18n - 7 languages (EN, ES, DE, FR, PT, IT, AR)
+- [x] RTL support for Arabic
+- [x] User language preference persistence
+- [x] Mock parent notification system (backend)
 
 ### P1 (Important)
 - [ ] File/image upload (player photos, club logo)
 - [ ] Email notifications for announcements
 - [ ] Export data (CSV/PDF reports)
 - [ ] Advanced match statistics & formations
+- [ ] Notification UI for frontend (send/view notifications)
 
 ### P2 (Nice to Have)
 - [ ] Real-time notifications (WebSocket)
@@ -115,12 +108,11 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - [ ] Subscription/billing (Stripe)
 - [ ] Drag-and-drop training planner
 - [ ] Performance analytics with AI insights
-- [ ] Multiple language support (i18n)
 - [ ] Dark/Light theme toggle
 
 ## Next Tasks
-1. Add file upload for player photos and club logos
-2. Implement CSV export for player and match data
-3. Add email notifications via SendGrid/Resend
-4. Build season management module
-5. Add subscription billing with Stripe
+1. Build notification UI for coaches to send and parents to view
+2. Add file upload for player photos and club logos
+3. Implement CSV export for player and match data
+4. Add email notifications via SendGrid/Resend
+5. Build season management module
