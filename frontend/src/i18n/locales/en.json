@@ -31,8 +31,16 @@
     "description": "Description",
     "language": "Language",
     "english": "English",
-    "spanish": "Espa\u00f1ol",
-    "german": "Deutsch"
+    "spanish": "Español",
+    "german": "Deutsch",
+    "french": "Français",
+    "portuguese": "Português",
+    "italian": "Italiano",
+    "arabic": "العربية",
+    "send": "Send",
+    "markAsRead": "Mark as read",
+    "notifications": "Notifications",
+    "noNotifications": "No notifications"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -53,7 +61,7 @@
     "heroTitle1": "Manage Your",
     "heroTitle2": "Academy Like",
     "heroTitle3": "The Pros",
-    "heroDesc": "The all-in-one platform for youth football academies. Track players, manage training, communicate with parents, and develop talent \u2014 all from one dashboard.",
+    "heroDesc": "The all-in-one platform for youth football academies. Track players, manage training, communicate with parents, and develop talent — all from one dashboard.",
     "startFree": "Start Free",
     "signIn": "Sign In",
     "features": "Features",
@@ -300,7 +308,11 @@
     "address": "Address",
     "website": "Website",
     "foundedYear": "Founded Year",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "languagePreference": "Language Preference",
+    "notificationPrefs": "Notification Preferences",
+    "emailNotifications": "Email Notifications",
+    "enableEmail": "Enable emails"
   },
   "reports": {
     "title": "Analytics",
@@ -311,5 +323,23 @@
     "teams": "Teams",
     "playersByCategory": "Players by Category",
     "attendanceTrend": "Attendance Trend"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "send": "Send Notification",
+    "sendToParents": "Send to Parents",
+    "subject": "Subject",
+    "message": "Message",
+    "recipient": "Recipient",
+    "allParents": "All Parents",
+    "teamParents": "Team Parents",
+    "sent": "Sent",
+    "read": "Read",
+    "unread": "Unread",
+    "emailSent": "Email sent",
+    "emailSimulated": "(simulated)",
+    "noNotifications": "No notifications",
+    "sentSuccess": "Notification sent!",
+    "markAllRead": "Mark all as read"
   }
 }

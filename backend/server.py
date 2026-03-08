@@ -200,6 +200,15 @@ class ClubSettingsUpdate(BaseModel):
     founded_year: Optional[int] = None
     logo_url: Optional[str] = None
 
+class LanguageUpdate(BaseModel):
+    language: str
+
+class NotificationCreate(BaseModel):
+    subject: str
+    message: str
+    recipient: str = "all_parents"
+    team_id: Optional[str] = None
+
 class PlayerMetricCreate(BaseModel):
     player_id: str
     speed: Optional[float] = None
@@ -290,7 +299,8 @@ async def login(data: LoginRequest):
             "email": user.get("email", ""),
             "role": user.get("role", "admin"),
             "club_id": user.get("club_id", ""),
-            "club": club
+            "club": club,
+            "language": user.get("language", "en")
         }
     }
 
@@ -897,6 +907,74 @@ async def update_settings(data: ClubSettingsUpdate, request: Request):
             {"$set": update}
         )
     return {"status": "updated"}
+
+# USER LANGUAGE PREFERENCE
+@app.put("/api/user/language")
+async def update_user_language(data: LanguageUpdate, request: Request):
+    user = await get_user_from_request(request)
+    await db.users.update_one(
+        {"_id": ObjectId(user["user_id"])},
+        {"$set": {"language": data.language}}
+    )
+    return {"status": "updated", "language": data.language}
+
+@app.get("/api/user/language")
+async def get_user_language(request: Request):
+    user = await get_user_from_request(request)
+    user_doc = await db.users.find_one({"_id": ObjectId(user["user_id"])}, {"language": 1})
+    return {"language": user_doc.get("language", "en") if user_doc else "en"}
+
+# NOTIFICATIONS (Mock Parent Notification System)
+@app.post("/api/notifications")
+async def create_notification(data: NotificationCreate, request: Request):
+    user = await get_user_from_request(request)
+    doc = {
+        "subject": data.subject,
+        "message": data.message,
+        "recipient": data.recipient,
+        "team_id": data.team_id,
+        "club_id": user["club_id"],
+        "sender_name": user["name"],
+        "sender_role": user["role"],
+        "status": "sent",
+        "email_simulated": True,
+        "read_by": [],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.notifications.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
+@app.get("/api/notifications")
+async def get_notifications(request: Request):
+    user = await get_user_from_request(request)
+    query = {"club_id": user["club_id"]}
+    notifs = await db.notifications.find(query).sort("created_at", -1).to_list(100)
+    result = []
+    for n in notifs:
+        n_data = str_id(n)
+        n_data["is_read"] = user["user_id"] in n.get("read_by", [])
+        result.append(n_data)
+    return result
+
+@app.put("/api/notifications/{notif_id}/read")
+async def mark_notification_read(notif_id: str, request: Request):
+    user = await get_user_from_request(request)
+    await db.notifications.update_one(
+        {"_id": ObjectId(notif_id), "club_id": user["club_id"]},
+        {"$addToSet": {"read_by": user["user_id"]}}
+    )
+    return {"status": "read"}
+
+@app.put("/api/notifications/read-all")
+async def mark_all_notifications_read(request: Request):
+    user = await get_user_from_request(request)
+    await db.notifications.update_many(
+        {"club_id": user["club_id"]},
+        {"$addToSet": {"read_by": user["user_id"]}}
+    )
+    return {"status": "all_read"}
 
 # SEED DATA
 @app.post("/api/seed")

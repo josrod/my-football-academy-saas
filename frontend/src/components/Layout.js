@@ -8,9 +8,13 @@ import {
 } from 'lucide-react';
 
 const LANGS = [
-  { code: 'en', label: 'EN', flag: '🇬🇧' },
-  { code: 'es', label: 'ES', flag: '🇪🇸' },
-  { code: 'de', label: 'DE', flag: '🇩🇪' },
+  { code: 'en', label: 'EN', nameKey: 'common.english' },
+  { code: 'es', label: 'ES', nameKey: 'common.spanish' },
+  { code: 'de', label: 'DE', nameKey: 'common.german' },
+  { code: 'fr', label: 'FR', nameKey: 'common.french' },
+  { code: 'pt', label: 'PT', nameKey: 'common.portuguese' },
+  { code: 'it', label: 'IT', nameKey: 'common.italian' },
+  { code: 'ar', label: 'AR', nameKey: 'common.arabic' },
 ];
 
 export default function Layout({ children }) {
@@ -37,7 +41,15 @@ export default function Layout({ children }) {
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  const switchLang = (code) => { i18n.changeLanguage(code); setLangOpen(false); };
+  const switchLang = async (code) => {
+    i18n.changeLanguage(code);
+    setLangOpen(false);
+    // Persist language preference to backend
+    try {
+      const api = (await import('../api')).default;
+      await api.put('/api/user/language', { language: code });
+    } catch {}
+  };
 
   const currentLang = LANGS.find(l => l.code === i18n.language?.substring(0, 2)) || LANGS[0];
 
@@ -86,8 +98,8 @@ export default function Layout({ children }) {
                     className={`w-full flex items-center gap-2 px-4 py-2.5 text-xs transition-colors ${
                       currentLang.code === lang.code ? 'text-primary bg-primary/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                     }`}>
-                    <span>{lang.flag}</span>
-                    <span>{lang.code === 'en' ? t('common.english') : lang.code === 'es' ? t('common.spanish') : t('common.german')}</span>
+                    <span className="font-mono text-[10px] opacity-60">{lang.label}</span>
+                    <span>{t(lang.nameKey)}</span>
                   </button>
                 ))}
               </div>
@@ -127,14 +139,14 @@ export default function Layout({ children }) {
               <Globe size={18} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 top-full mt-1 w-36 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden shadow-xl z-50">
+              <div className="absolute right-0 top-full mt-1 w-44 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden shadow-xl z-50 max-h-72 overflow-y-auto">
                 {LANGS.map(lang => (
                   <button key={lang.code} onClick={() => switchLang(lang.code)}
                     className={`w-full flex items-center gap-2 px-4 py-2.5 text-xs ${
                       currentLang.code === lang.code ? 'text-primary bg-primary/10' : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                     }`}>
-                    <span>{lang.flag}</span>
-                    <span>{lang.code === 'en' ? 'English' : lang.code === 'es' ? 'Español' : 'Deutsch'}</span>
+                    <span className="font-mono text-[10px] opacity-60">{lang.label}</span>
+                    <span>{t(lang.nameKey)}</span>
                   </button>
                 ))}
               </div>

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api';
+import i18n from '../i18n';
 
 const AuthContext = createContext(null);
 
@@ -12,7 +13,12 @@ export function AuthProvider({ children }) {
     const saved = localStorage.getItem('user');
     if (token && saved) {
       try {
-        setUser(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setUser(parsed);
+        // Apply saved language preference
+        if (parsed.language) {
+          i18n.changeLanguage(parsed.language);
+        }
       } catch {}
     }
     setLoading(false);
@@ -23,6 +29,10 @@ export function AuthProvider({ children }) {
     localStorage.setItem('token', res.token);
     localStorage.setItem('user', JSON.stringify(res.user));
     setUser(res.user);
+    // Apply user's saved language preference
+    if (res.user.language) {
+      i18n.changeLanguage(res.user.language);
+    }
     return res.user;
   };
 

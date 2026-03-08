@@ -8,6 +8,10 @@ const LANGS = [
   { code: 'en', label: 'EN' },
   { code: 'es', label: 'ES' },
   { code: 'de', label: 'DE' },
+  { code: 'fr', label: 'FR' },
+  { code: 'pt', label: 'PT' },
+  { code: 'it', label: 'IT' },
+  { code: 'ar', label: 'AR' },
 ];
 
 export default function Landing() {
