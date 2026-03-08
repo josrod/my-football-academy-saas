@@ -1,7 +1,7 @@
 # Academy SaaS (AcademyOS) - Product Requirements Document
 
 ## Original Problem Statement
-Build a production-ready MVP SaaS application called "Academy SaaS" that manages youth football academies (soccer clubs). Multi-tenant architecture using club_id. Modules: Auth, Players, Teams, Training, Matches, Calendar, Scouting, Parent Portal, Announcements, Dashboard, Reports, Settings.
+Build a production-ready MVP SaaS application called "Academy SaaS" that manages youth football academies (soccer clubs). Multi-tenant architecture using club_id. Modules: Auth, Players, Teams, Training, Matches, Calendar, Scouting, Parent Portal, Announcements, Dashboard, Reports, Settings, Seasons.
 
 ## Architecture
 - **Frontend**: React.js (CRA) + TailwindCSS + Recharts + FullCalendar + Framer Motion
@@ -11,38 +11,34 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 - **Storage**: Emergent Object Storage for file uploads
 - **Design**: Dark theme (Linear/Vercel-style) with green accents
 
-## User Personas
-1. **Academy Admin** - Full access to all modules, manages users, settings, announcements, notifications
-2. **Coach** - Manages players, training, matches, scouting, can send notifications
-3. **Parent** - Read-only access to children's progress, schedule, attendance, notifications
-
 ## What's Been Implemented
 
-### Backend (FastAPI) - 40+ endpoints
+### Backend (FastAPI) - 45+ endpoints
 - JWT auth (signup, login, me)
 - CRUD: players, teams, training, matches, calendar events, announcements, evaluations, injuries, metrics
 - Dashboard aggregation with charts data
-- Parent portal endpoints
-- Admin user management, club settings
-- User language preference (PUT/GET /api/user/language)
-- Mock parent notification system (CRUD /api/notifications)
-- **File upload** (POST /api/upload, GET /api/files/{path}) via Emergent Object Storage
-- Seed data endpoint
+- Parent portal, admin user management, club settings
+- User language preference, mock parent notification system
+- **File upload** via Emergent Object Storage
+- **Season Management** - Full CRUD with stats aggregation (matches, training in date range, W/D/L, goals)
+- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches, 5 announcements, 15 evaluations, 3 seasons)
 
-### Frontend (React) - 20+ screens
+### Frontend (React) - 22+ screens
 - **i18n**: 7 languages (EN, ES, DE, FR, PT, IT, AR) with RTL support
-- **Notifications UI**: Compose/send form for admin/coach, notification list with read/unread, badge in sidebar
-- **File Upload**: Player photo upload (profile page), club logo upload (settings)
-- **CSV/PDF Export**: Export players CSV, full academy PDF report on Reports page
-- Player avatars with photos or initials in tables
-- Full sidebar navigation with unread notification count
-- Dark theme, mobile responsive, animations
+- **Notifications UI**: Compose/send, notification list, bell badge in sidebar
+- **File Upload**: Player photos, club logos
+- **CSV/PDF Export**: Players CSV, academy PDF report
+- **Season Management**: Season list with cards (status badges, stats), create/delete/activate, season detail page with:
+  - Stats grid (matches, wins, draws, losses, training, goals for/against)
+  - Team performance bar chart
+  - Matches and Training tabs with data tables
+- All 7 languages translated for seasons module
 
-### Testing Status
-- Iteration 1: Backend 100% (21/21)
-- Iteration 2: Frontend 94% (16/17)
-- Iteration 3: Backend 100% (18/18), Frontend 95% (22/23)
-- Iteration 4: Backend 100% (16/16), Frontend 95%
+### Testing Status (5 iterations)
+- Iteration 5: Backend 100% (12/12), Frontend 100% — Season Management
+- Iteration 4: Backend 100% (16/16), Frontend 95% — Notifications/Upload/Export
+- Iteration 3: Backend 100% (18/18), Frontend 95% — i18n Expansion
+- Previous: All passing
 
 ## Demo Credentials
 - Admin: admin@academy.com / admin123
@@ -52,12 +48,10 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 ## Prioritized Backlog
 
 ### P0 (Critical) - All Done
-- [x] Auth, Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Parent Portal, Admin, Settings
-- [x] i18n - 7 languages with RTL support
-- [x] User language preference persistence
-- [x] Notifications UI (send + view + read/unread)
-- [x] File/image upload (player photos, club logos)
-- [x] CSV/PDF export
+- [x] All core modules (Auth, Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Parent Portal, Admin, Settings)
+- [x] i18n - 7 languages with RTL
+- [x] Notifications UI, File Upload, CSV/PDF Export
+- [x] Season Management
 
 ### P1 (Important)
 - [ ] Auto-translation for announcements using LLM
@@ -67,14 +61,7 @@ Build a production-ready MVP SaaS application called "Academy SaaS" that manages
 ### P2 (Nice to Have)
 - [ ] Real-time notifications (WebSocket)
 - [ ] Player comparison tool
-- [ ] Season management
 - [ ] Subscription/billing (Stripe)
 - [ ] Drag-and-drop training planner
 - [ ] Performance analytics with AI insights
 - [ ] Dark/Light theme toggle
-
-## Next Tasks
-1. Auto-translation for announcements (LLM integration - user needs to pick provider)
-2. Email notifications via SendGrid/Resend
-3. Season management module
-4. Stripe billing integration
