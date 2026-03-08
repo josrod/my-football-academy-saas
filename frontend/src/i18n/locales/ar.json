@@ -370,5 +370,19 @@
     "goalsAgainst": "أهداف عليه",
     "teamPerformance": "أداء الفريق",
     "result": "النتيجة"
+  },
+  "leaderboard": {
+    "title": "لوحة المتصدرين",
+    "topScorers": "الهدافون",
+    "topAssists": "صانعو الأهداف",
+    "bestAttendance": "أفضل حضور",
+    "topRated": "الأعلى تقييماً",
+    "goals": "أهداف",
+    "assists": "تمريرات",
+    "attendanceRate": "الحضور",
+    "rating": "متوسط التقييم",
+    "noData": "لا توجد بيانات لهذا الموسم",
+    "matchesPlayed": "المباريات",
+    "sessionsAttended": "الجلسات"
   }
 }

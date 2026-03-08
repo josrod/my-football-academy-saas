@@ -2,25 +2,116 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { ArrowLeft, Loader2, Trophy, Dumbbell, Target, TrendingUp, Calendar, Check, Clock, PlayCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, Trophy, Dumbbell, Target, TrendingUp, Check, Clock, PlayCircle, Medal, Flame, Star } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
 const STATUS_MAP = {
-  active: { icon: PlayCircle, cls: 'bg-green-500/10 text-green-400 border-green-500/20', label: 'Active' },
-  completed: { icon: Check, cls: 'bg-zinc-700/30 text-zinc-400 border-zinc-600/30', label: 'Completed' },
-  upcoming: { icon: Clock, cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20', label: 'Upcoming' },
+  active: { icon: PlayCircle, cls: 'bg-green-500/10 text-green-400 border-green-500/20' },
+  completed: { icon: Check, cls: 'bg-zinc-700/30 text-zinc-400 border-zinc-600/30' },
+  upcoming: { icon: Clock, cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
 };
+
+const PODIUM_COLORS = ['from-amber-500/20 to-amber-600/5 border-amber-500/30', 'from-zinc-400/15 to-zinc-500/5 border-zinc-400/30', 'from-orange-600/15 to-orange-700/5 border-orange-600/30'];
+const MEDAL_COLORS = ['text-amber-400', 'text-zinc-400', 'text-orange-500'];
+
+function LeaderboardSection({ title, icon: Icon, data, valueKey, valueLabel, formatValue, t }) {
+  if (!data || data.length === 0) return (
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8 text-center">
+      <Icon size={28} className="text-zinc-600 mx-auto mb-2" />
+      <p className="text-sm text-zinc-500">{t('leaderboard.noData')}</p>
+    </div>
+  );
+
+  const top3 = data.slice(0, 3);
+  const rest = data.slice(3);
+
+  return (
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden" data-testid={`leaderboard-${valueKey}`}>
+      <div className="px-6 py-4 border-b border-zinc-800 flex items-center gap-3">
+        <Icon size={18} className="text-primary" />
+        <h3 className="text-sm font-semibold text-white uppercase tracking-wider">{title}</h3>
+      </div>
+
+      {/* Podium - Top 3 */}
+      <div className="grid grid-cols-3 gap-3 p-5">
+        {[1, 0, 2].map(idx => {
+          const player = top3[idx];
+          if (!player) return <div key={idx} />;
+          return (
+            <motion.div key={idx} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className={`relative bg-gradient-to-b ${PODIUM_COLORS[idx]} border rounded-xl p-4 text-center ${idx === 0 ? 'md:-mt-2' : ''}`}
+              data-testid={`podium-${valueKey}-${idx}`}>
+              <div className="relative mx-auto mb-2">
+                <div className="w-14 h-14 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center mx-auto overflow-hidden">
+                  {player.photo_url ? (
+                    <img src={api.fileUrl(player.photo_url)} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-bold text-zinc-400">
+                      {player.first_name?.[0]}{player.last_name?.[0]}
+                    </span>
+                  )}
+                </div>
+                <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-zinc-500' : 'bg-orange-600'} text-black text-[10px] font-bold`}>
+                  {idx + 1}
+                </div>
+              </div>
+              <p className="text-xs font-semibold text-white truncate">{player.first_name} {player.last_name}</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">{player.team_name || player.category}</p>
+              <p className={`text-xl font-heading font-bold mt-1 ${MEDAL_COLORS[idx]}`}>
+                {formatValue ? formatValue(player[valueKey]) : player[valueKey]}
+              </p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{valueLabel}</p>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Rest of the list */}
+      {rest.length > 0 && (
+        <div className="border-t border-zinc-800">
+          {rest.map((player, i) => (
+            <div key={player.id || i}
+              className="flex items-center gap-3 px-5 py-3 border-b border-zinc-800/30 last:border-0 hover:bg-zinc-800/20 transition-colors"
+              data-testid={`leaderboard-row-${valueKey}-${i + 3}`}>
+              <span className="w-7 text-center text-xs font-mono text-zinc-500">{i + 4}</span>
+              <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-semibold text-zinc-400 overflow-hidden flex-shrink-0">
+                {player.photo_url ? (
+                  <img src={api.fileUrl(player.photo_url)} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  `${player.first_name?.[0]}${player.last_name?.[0]}`
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white truncate">{player.first_name} {player.last_name}</p>
+                <p className="text-[10px] text-zinc-500">{player.team_name} &middot; #{player.jersey_number}</p>
+              </div>
+              <span className="text-sm font-heading font-bold text-primary">
+                {formatValue ? formatValue(player[valueKey]) : player[valueKey]}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SeasonDetail() {
   const { id } = useParams();
   const { t } = useTranslation();
   const [season, setSeason] = useState(null);
+  const [leaderboard, setLeaderboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('overview');
 
   useEffect(() => {
-    api.get(`/api/seasons/${id}`).then(setSeason).catch(console.error).finally(() => setLoading(false));
+    Promise.all([
+      api.get(`/api/seasons/${id}`),
+      api.get(`/api/seasons/${id}/leaderboard`)
+    ]).then(([s, lb]) => { setSeason(s); setLeaderboard(lb); })
+      .catch(console.error).finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-primary" /></div>;
@@ -30,7 +121,6 @@ export default function SeasonDetail() {
   const st = STATUS_MAP[season.status] || STATUS_MAP.upcoming;
   const StIcon = st.icon;
 
-  // Build team match record for chart
   const teamMap = {};
   (season.teams || []).forEach(tm => { teamMap[tm.id] = tm.name; });
   const teamMatchData = {};
@@ -45,6 +135,7 @@ export default function SeasonDetail() {
 
   const TABS = [
     { key: 'overview', label: t('seasons.overview') },
+    { key: 'leaderboard', label: t('leaderboard.title') },
     { key: 'matches', label: t('nav.matches') },
     { key: 'training', label: t('nav.training') },
   ];
@@ -141,6 +232,48 @@ export default function SeasonDetail() {
           ) : (
             <div className="text-center py-16 text-zinc-500 text-sm">{t('common.noData')}</div>
           )}
+        </div>
+      )}
+
+      {tab === 'leaderboard' && leaderboard && (
+        <div className="space-y-6" data-testid="season-leaderboard-tab">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <LeaderboardSection
+              title={t('leaderboard.topScorers')}
+              icon={Flame}
+              data={leaderboard.top_scorers}
+              valueKey="goals"
+              valueLabel={t('leaderboard.goals')}
+              t={t}
+            />
+            <LeaderboardSection
+              title={t('leaderboard.topAssists')}
+              icon={Target}
+              data={leaderboard.top_assists}
+              valueKey="assists"
+              valueLabel={t('leaderboard.assists')}
+              t={t}
+            />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <LeaderboardSection
+              title={t('leaderboard.bestAttendance')}
+              icon={Medal}
+              data={leaderboard.best_attendance}
+              valueKey="attendance_rate"
+              valueLabel={t('leaderboard.attendanceRate')}
+              formatValue={v => `${v}%`}
+              t={t}
+            />
+            <LeaderboardSection
+              title={t('leaderboard.topRated')}
+              icon={Star}
+              data={leaderboard.top_rated}
+              valueKey="avg_rating"
+              valueLabel={t('leaderboard.rating')}
+              t={t}
+            />
+          </div>
         </div>
       )}
 

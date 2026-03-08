@@ -1082,6 +1082,148 @@ async def delete_season(season_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Season not found")
     return {"status": "deleted"}
 
+@app.get("/api/seasons/{season_id}/leaderboard")
+async def get_season_leaderboard(season_id: str, request: Request):
+    user = await get_user_from_request(request)
+    season = await db.seasons.find_one({"_id": ObjectId(season_id), "club_id": user["club_id"]})
+    if not season:
+        raise HTTPException(status_code=404, detail="Season not found")
+    
+    start = season["start_date"]
+    end = season["end_date"]
+    club_id = user["club_id"]
+    
+    # Get completed matches in this season
+    matches = await db.matches.find({
+        "club_id": club_id, "status": "completed",
+        "date": {"$gte": start, "$lte": end}
+    }).to_list(500)
+    match_ids = [str(m["_id"]) for m in matches]
+    
+    # Get all player stats for these matches
+    all_stats = await db.match_player_stats.find({
+        "match_id": {"$in": match_ids}, "club_id": club_id
+    }).to_list(5000)
+    
+    # Aggregate goals and assists per player
+    player_goals = {}
+    player_assists = {}
+    player_matches_count = {}
+    player_ratings = {}
+    for s in all_stats:
+        pid = s["player_id"]
+        player_goals[pid] = player_goals.get(pid, 0) + (s.get("goals") or 0)
+        player_assists[pid] = player_assists.get(pid, 0) + (s.get("assists") or 0)
+        player_matches_count[pid] = player_matches_count.get(pid, 0) + 1
+        if pid not in player_ratings:
+            player_ratings[pid] = []
+        if s.get("rating"):
+            player_ratings[pid].append(s["rating"])
+    
+    # Get training sessions in this season
+    sessions = await db.training_sessions.find({
+        "club_id": club_id,
+        "date": {"$gte": start, "$lte": end}
+    }).to_list(500)
+    session_ids = [str(s["_id"]) for s in sessions]
+    
+    # Get attendance records
+    attendance = await db.training_attendance.find({
+        "session_id": {"$in": session_ids}, "club_id": club_id
+    }).to_list(10000)
+    
+    player_attendance = {}
+    for a in attendance:
+        pid = a["player_id"]
+        if pid not in player_attendance:
+            player_attendance[pid] = {"total": 0, "present": 0}
+        player_attendance[pid]["total"] += 1
+        if a.get("status") == "present":
+            player_attendance[pid]["present"] += 1
+    
+    # Get all relevant player IDs
+    all_pids = set(list(player_goals.keys()) + list(player_attendance.keys()))
+    
+    # Fetch player info
+    player_info = {}
+    for pid in all_pids:
+        try:
+            p = await db.players.find_one({"_id": ObjectId(pid)}, {
+                "first_name": 1, "last_name": 1, "jersey_number": 1,
+                "category": 1, "team_id": 1, "photo_url": 1, "position": 1
+            })
+            if p:
+                player_info[pid] = {
+                    "id": pid,
+                    "first_name": p.get("first_name", ""),
+                    "last_name": p.get("last_name", ""),
+                    "jersey_number": p.get("jersey_number"),
+                    "category": p.get("category", ""),
+                    "team_id": p.get("team_id", ""),
+                    "photo_url": p.get("photo_url", ""),
+                    "position": p.get("position", "")
+                }
+        except Exception:
+            pass
+    
+    # Get team names
+    teams = await db.teams.find({"club_id": club_id}, {"name": 1}).to_list(50)
+    team_names = {str(t["_id"]): t["name"] for t in teams}
+    
+    def build_entry(pid, stat_value, stat_key):
+        info = player_info.get(pid, {})
+        entry = {**info, stat_key: stat_value}
+        entry["team_name"] = team_names.get(info.get("team_id", ""), "")
+        entry["matches_played"] = player_matches_count.get(pid, 0)
+        ratings = player_ratings.get(pid, [])
+        entry["avg_rating"] = round(sum(ratings) / len(ratings), 1) if ratings else 0
+        return entry
+    
+    # Top scorers
+    top_scorers = sorted(
+        [build_entry(pid, g, "goals") for pid, g in player_goals.items() if g > 0],
+        key=lambda x: (-x["goals"], -x.get("avg_rating", 0))
+    )[:20]
+    
+    # Top assists
+    top_assists = sorted(
+        [build_entry(pid, a, "assists") for pid, a in player_assists.items() if a > 0],
+        key=lambda x: (-x["assists"], -x.get("avg_rating", 0))
+    )[:20]
+    
+    # Best attendance
+    best_attendance = []
+    for pid, att in player_attendance.items():
+        if att["total"] > 0:
+            rate = round((att["present"] / att["total"]) * 100)
+            info = player_info.get(pid, {})
+            entry = {**info, "attendance_rate": rate, "sessions_present": att["present"], "sessions_total": att["total"]}
+            entry["team_name"] = team_names.get(info.get("team_id", ""), "")
+            best_attendance.append(entry)
+    best_attendance.sort(key=lambda x: (-x["attendance_rate"], -x["sessions_total"]))
+    best_attendance = best_attendance[:20]
+    
+    # Top rated
+    top_rated = []
+    for pid, ratings in player_ratings.items():
+        if ratings:
+            info = player_info.get(pid, {})
+            entry = {**info, "avg_rating": round(sum(ratings) / len(ratings), 1), "matches_played": player_matches_count.get(pid, 0)}
+            entry["team_name"] = team_names.get(info.get("team_id", ""), "")
+            top_rated.append(entry)
+    top_rated.sort(key=lambda x: (-x["avg_rating"], -x["matches_played"]))
+    top_rated = top_rated[:20]
+    
+    return {
+        "top_scorers": top_scorers,
+        "top_assists": top_assists,
+        "best_attendance": best_attendance,
+        "top_rated": top_rated,
+        "season_name": season["name"],
+        "total_matches": len(match_ids),
+        "total_training": len(session_ids)
+    }
+
 # FILE UPLOAD
 @app.post("/api/upload")
 async def upload_file(request: Request, file: UploadFile = File(...)):

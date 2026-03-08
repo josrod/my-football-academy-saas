@@ -370,5 +370,19 @@
     "goalsAgainst": "Goals Against",
     "teamPerformance": "Team Performance",
     "result": "Result"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "topScorers": "Top Scorers",
+    "topAssists": "Top Assists",
+    "bestAttendance": "Best Attendance",
+    "topRated": "Top Rated",
+    "goals": "Goals",
+    "assists": "Assists",
+    "attendanceRate": "Attendance",
+    "rating": "Avg Rating",
+    "noData": "No data for this season yet",
+    "matchesPlayed": "Matches",
+    "sessionsAttended": "Sessions"
   }
 }

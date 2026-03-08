@@ -370,5 +370,19 @@
     "goalsAgainst": "Buts Contre",
     "teamPerformance": "Performance Équipe",
     "result": "Résultat"
+  },
+  "leaderboard": {
+    "title": "Classement",
+    "topScorers": "Meilleurs Buteurs",
+    "topAssists": "Meilleures Passes",
+    "bestAttendance": "Meilleure Présence",
+    "topRated": "Mieux Notés",
+    "goals": "Buts",
+    "assists": "Passes",
+    "attendanceRate": "Présence",
+    "rating": "Note Moy.",
+    "noData": "Aucune donnée pour cette saison",
+    "matchesPlayed": "Matchs",
+    "sessionsAttended": "Séances"
   }
 }

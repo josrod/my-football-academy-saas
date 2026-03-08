@@ -370,5 +370,19 @@
     "goalsAgainst": "Gol Subiti",
     "teamPerformance": "Prestazione Squadra",
     "result": "Risultato"
+  },
+  "leaderboard": {
+    "title": "Classifica",
+    "topScorers": "Capocannonieri",
+    "topAssists": "Migliori Assist",
+    "bestAttendance": "Miglior Presenza",
+    "topRated": "Migliori Voti",
+    "goals": "Gol",
+    "assists": "Assist",
+    "attendanceRate": "Presenza",
+    "rating": "Voto Medio",
+    "noData": "Nessun dato per questa stagione",
+    "matchesPlayed": "Partite",
+    "sessionsAttended": "Sessioni"
   }
 }

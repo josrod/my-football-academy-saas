@@ -370,5 +370,19 @@
     "goalsAgainst": "Gegentore",
     "teamPerformance": "Teamleistung",
     "result": "Ergebnis"
+  },
+  "leaderboard": {
+    "title": "Rangliste",
+    "topScorers": "Torjäger",
+    "topAssists": "Vorlagen",
+    "bestAttendance": "Beste Anwesenheit",
+    "topRated": "Bestbewertet",
+    "goals": "Tore",
+    "assists": "Vorlagen",
+    "attendanceRate": "Anwesenheit",
+    "rating": "Bewertung",
+    "noData": "Keine Daten für diese Saison",
+    "matchesPlayed": "Spiele",
+    "sessionsAttended": "Einheiten"
   }
 }

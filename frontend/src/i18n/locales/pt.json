@@ -370,5 +370,19 @@
     "goalsAgainst": "Gols Contra",
     "teamPerformance": "Desempenho da Equipe",
     "result": "Resultado"
+  },
+  "leaderboard": {
+    "title": "Classificação",
+    "topScorers": "Artilheiros",
+    "topAssists": "Assistências",
+    "bestAttendance": "Melhor Presença",
+    "topRated": "Mais Bem Avaliados",
+    "goals": "Gols",
+    "assists": "Assistências",
+    "attendanceRate": "Presença",
+    "rating": "Nota Média",
+    "noData": "Sem dados para esta temporada",
+    "matchesPlayed": "Jogos",
+    "sessionsAttended": "Sessões"
   }
 }
