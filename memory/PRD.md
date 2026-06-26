@@ -5,42 +5,46 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 
 ## Architecture
 - **Frontend**: React.js (CRA) + TailwindCSS + Recharts + FullCalendar + Framer Motion
-- **Backend**: FastAPI (Python) + MongoDB (Motor async driver)
+- **Backend**: FastAPI (Python) + MongoDB (Motor async driver) + WebSocket
 - **Auth**: JWT-based custom authentication
 - **Multi-tenant**: club_id isolation on all collections
+- **AI**: GPT 5.2 via Emergent Integrations (insights + translation)
 - **Storage**: Emergent Object Storage for file uploads
-- **Design**: Dark theme (Linear/Vercel-style) with green accents
+- **Design**: Dark/Light theme toggle with CSS variables
 - **i18n**: 7 languages (EN, ES, DE, FR, PT, IT, AR) with RTL support
 
 ## What's Been Implemented
 
-### Backend (FastAPI) - 57+ endpoints
-- JWT auth, CRUD for all modules, dashboard aggregation
-- Season management with CRUD + stats aggregation + leaderboard
-- File upload via Emergent Object Storage
-- User language preference, mock parent notification system
-- Advanced Match Statistics: team_stats, events, player_stats, MOTM, summary, formation
-- Tactical Heatmap: 24-zone grid per player based on position type
-- Formation CRUD: 5 presets, save/load/update/delete per team
-- **Formation Comparison**: planned vs actual formation with player performance overlay
-- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches with full data, 3 seasons)
+### Backend (FastAPI) - 65+ endpoints
+All core CRUD + advanced features:
+- JWT auth, multi-tenant CRUD for players, teams, training, matches, calendar, scouting, announcements, reports
+- Season management + leaderboard
+- Advanced Match: team_stats, events, heatmap, formation comparison
+- Formation CRUD with 5 presets
+- **Player Stats API**: aggregated metrics + match stats per player
+- **AI Insights** (GPT 5.2): analyze academy data, generate structured recommendations
+- **Auto-Translate** (GPT 5.2): translate announcements to 7 languages
+- **WebSocket**: real-time notifications with per-user connections, ping/pong, club broadcast
+- File upload via Object Storage, CSV/PDF export
 
-### Frontend (React) - 26+ screens
-- Full dashboard, player/team management, training with attendance
-- Match center with 5-tab report (Stats, Timeline, Heatmap, Player Ratings, **Compare**)
-- Calendar, scouting with radar charts, reports with CSV/PDF export
-- Season Management with podium leaderboard
-- **Formation Analysis** (/formations): drag-and-drop editor with auto-assign
-- **Formation Comparison**: side-by-side pitches (planned vs actual), rating color-coding, summary table
-- FootballPitch reusable SVG component
-- Notifications, announcements, parent portal, admin, settings
+### Frontend (React) - 30+ screens
+- Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Notifications, Parent Portal, Admin, Settings
+- Match Report: 5-tab view (Stats, Timeline, Heatmap, Player Ratings, Formation Comparison)
+- Formation Analysis: drag-and-drop editor with auto-assign
+- **Player Comparison**: radar charts + match stats side-by-side
+- **AI Insights page**: GPT 5.2 analysis with overview, player/team insights, recommendations
+- **Auto-translate button** on announcements with localized content display
+- **Dark/Light theme toggle** with CSS variables and localStorage persistence
+- **WebSocket** real-time notification updates in sidebar bell
+- Season Management with podium leaderboard, FootballPitch SVG component
 - All 7 languages translated, RTL for Arabic
 
-### Testing Status (9 iterations, all passing)
+### Testing Status (10 iterations, all passing)
+- Iteration 10: Backend 100% (19/19), Frontend 100% — Theme, Comparison, AI, Translate, WebSocket
 - Iteration 9: Backend 100% (12/12), Frontend 100% — Formation Comparison
 - Iteration 8: Backend 100% (19/19), Frontend 100% — Heatmap + Formations
 - Iteration 7: Backend 100% (23/23), Frontend 100% — Advanced Match Stats
-- Iteration 6-3: All passing — Leaderboard, Seasons, i18n, Notifications, Export
+- Earlier iterations: All passing
 
 ## Demo Credentials
 - Admin: admin@academy.com / admin123
@@ -51,20 +55,18 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 
 ### All Done
 - [x] Core modules (Auth, Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Parent Portal, Admin, Settings)
-- [x] i18n (7 languages + RTL), Notifications UI, File Upload, CSV/PDF Export
+- [x] i18n (7 languages + RTL), File Upload, CSV/PDF Export, Notifications
 - [x] Season Management with Leaderboard
-- [x] Advanced match statistics & formations
-- [x] Tactical Heatmap (match report tab)
-- [x] Formation Analysis with drag & drop editor
-- [x] Formation Comparison (planned vs actual with metrics)
-
-### P1 (Important)
-- [ ] Auto-translation for announcements using LLM
-- [ ] Email notifications via SendGrid/Resend
+- [x] Advanced Match Statistics, Tactical Heatmap, Formation Analysis, Formation Comparison
+- [x] Dark/Light Theme Toggle
+- [x] Player Comparison Tool (Radar + Stats)
+- [x] AI Performance Insights (GPT 5.2)
+- [x] Auto-Translation of Announcements (GPT 5.2)
+- [x] Real-time Notifications (WebSocket)
 
 ### P2 (Nice to Have)
-- [ ] Real-time notifications (WebSocket)
-- [ ] Player comparison tool
 - [ ] Subscription/billing (Stripe)
-- [ ] Performance analytics with AI insights
-- [ ] Dark/Light theme toggle
+- [ ] Email notifications via SendGrid/Resend
+- [ ] Advanced training drill library
+- [ ] Player injury tracking improvements
+- [ ] Mobile app (React Native)
