@@ -17,20 +17,24 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 ### Backend (FastAPI) - 48+ endpoints
 - JWT auth, CRUD for all modules, dashboard aggregation
 - Season management with CRUD + stats aggregation
-- **Season Leaderboard** - Top scorers, top assists, best attendance, top rated (aggregates match_player_stats + training_attendance within season date range)
+- Season Leaderboard - Top scorers, top assists, best attendance, top rated
 - File upload via Emergent Object Storage
 - User language preference, mock parent notification system
-- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches, 5 announcements, 15 evaluations, 3 seasons)
+- Advanced Match Statistics: enriched match data with team_stats, events, player_stats, MOTM, summary, formation
+- Match events API (POST /api/matches/{match_id}/events)
+- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches with events/stats, 5 announcements, 15 evaluations, 3 seasons)
 
 ### Frontend (React) - 23+ screens
 - Full dashboard, player management (with photo upload), team management
 - Training with attendance, match center, calendar, scouting with radar charts
 - Reports with CSV/PDF export
-- **Season Management** with leaderboard (podium-style top 3 + ranked list, 4 categories)
+- Season Management with leaderboard (podium-style top 3 + ranked list, 4 categories)
+- **Advanced Match Report**: 3-tab view (Team Stats comparison bars, Timeline with events, Player Ratings table), MOTM card, formation display, WIN/DRAW/LOSS badges
 - Notifications UI, announcements, parent portal, admin, settings (with logo upload)
 - All 7 languages translated, RTL for Arabic
 
-### Testing Status (6 iterations, all passing)
+### Testing Status (7 iterations, all passing)
+- Iteration 7: Backend 100% (23/23), Frontend 100% — Advanced Match Statistics
 - Iteration 6: Backend 100% (14/14), Frontend 100% — Leaderboard
 - Iteration 5: Backend 100% (12/12), Frontend 100% — Seasons
 - Iteration 4: Backend 100% (16/16) — Notifications/Upload/Export
@@ -49,11 +53,11 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 - [x] i18n (7 languages + RTL)
 - [x] Notifications UI, File Upload, CSV/PDF Export
 - [x] Season Management with Leaderboard
+- [x] Advanced match statistics & formations
 
 ### P1 (Important)
 - [ ] Auto-translation for announcements using LLM
 - [ ] Email notifications via SendGrid/Resend
-- [ ] Advanced match statistics & formations
 
 ### P2 (Nice to Have)
 - [ ] Real-time notifications (WebSocket)
