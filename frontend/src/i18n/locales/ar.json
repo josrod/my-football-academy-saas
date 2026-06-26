@@ -55,7 +55,8 @@
     "parentPortal": "بوابة أولياء الأمور",
     "settings": "الإعدادات",
     "signOut": "تسجيل الخروج",
-    "seasons": "المواسم"
+    "seasons": "المواسم",
+    "formations": "التشكيلات"
   },
   "landing": {
     "subtitle": "منصة أكاديميات كرة القدم للناشئين",
@@ -417,6 +418,27 @@
     "playersUsed": "لاعبين",
     "win": "فوز",
     "draw": "تعادل",
-    "loss": "هزيمة"
+    "loss": "هزيمة",
+    "heatmap": "خريطة الحرارة",
+    "selectPlayer": "اختر اللاعب",
+    "allPlayers": "جميع اللاعبين (مجتمعين)",
+    "highActivity": "نشاط عالي",
+    "mediumActivity": "نشاط متوسط",
+    "lowActivity": "نشاط منخفض"
+  },
+  "formations": {
+    "title": "تحليل التشكيلات",
+    "subtitle": "صمم وأدر تشكيلات فريقك بالسحب والإفلات",
+    "selectTeam": "اختر الفريق",
+    "preset": "تشكيلات مسبقة",
+    "autoAssign": "تعيين تلقائي",
+    "resetPositions": "إعادة تعيين المواقع",
+    "formationName": "اسم التشكيلة...",
+    "save": "حفظ التشكيلة",
+    "savedFormations": "التشكيلات المحفوظة",
+    "selectedPosition": "المركز المحدد",
+    "availablePlayers": "اللاعبون المتاحون",
+    "allAssigned": "تم تعيين جميع اللاعبين",
+    "dragToMove": "اسحب لإعادة التموضع"
   }
 }

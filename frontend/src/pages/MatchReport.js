@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { ArrowLeft, Loader2, MapPin, Clock, Star, Flame, AlertTriangle, ArrowRightLeft, BarChart3, Users, Trophy } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin, Clock, Star, Flame, AlertTriangle, ArrowRightLeft, BarChart3, Users, Trophy, Crosshair } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FootballPitch, { pitchToSvg, PITCH_WIDTH, PITCH_RATIO } from '../components/FootballPitch';
 
 function StatBar({ label, home, away, homeLabel, awayLabel, suffix = '' }) {
   const max = Math.max(home, away, 1);
@@ -42,6 +43,8 @@ export default function MatchReport() {
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('stats');
+  const [heatmapPlayer, setHeatmapPlayer] = useState(null);
+  const pitchRef = useRef(null);
 
   useEffect(() => {
     api.get(`/api/matches/${id}`).then(setMatch).catch(console.error).finally(() => setLoading(false));
@@ -61,6 +64,7 @@ export default function MatchReport() {
   const TABS = isCompleted ? [
     { key: 'stats', label: t('matchAdvanced.teamStats'), icon: BarChart3 },
     { key: 'timeline', label: t('matchAdvanced.timeline'), icon: Clock },
+    { key: 'heatmap', label: t('matchAdvanced.heatmap'), icon: Crosshair },
     { key: 'players', label: t('matchAdvanced.playerRatings'), icon: Users },
   ] : [];
 
@@ -213,6 +217,112 @@ export default function MatchReport() {
             </div>
           ) : (
             <p className="text-center py-10 text-sm text-zinc-500">{t('matchAdvanced.noEvents')}</p>
+          )}
+        </div>
+      )}
+
+      {/* Heatmap Tab */}
+      {tab === 'heatmap' && isCompleted && match.player_stats?.length > 0 && (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6" data-testid="heatmap-section">
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Player selector */}
+            <div className="md:w-56 flex-shrink-0">
+              <h3 className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-3">{t('matchAdvanced.selectPlayer')}</h3>
+              <div className="space-y-1.5 max-h-[480px] overflow-y-auto">
+                <button onClick={() => setHeatmapPlayer(null)} data-testid="heatmap-all-players"
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                    !heatmapPlayer ? 'bg-primary/20 text-primary border border-primary/30' : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
+                  }`}>
+                  {t('matchAdvanced.allPlayers')}
+                </button>
+                {match.player_stats.map((ps, i) => (
+                  <button key={i} onClick={() => setHeatmapPlayer(ps)} data-testid={`heatmap-player-${i}`}
+                    className={`w-full flex items-center gap-2 text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      heatmapPlayer?.player_id === ps.player_id ? 'bg-primary/20 text-primary border border-primary/30' : 'text-zinc-400 hover:bg-zinc-800 border border-transparent'
+                    }`}>
+                    <span className="w-5 text-[10px] font-mono text-zinc-500">{ps.jersey_number || '-'}</span>
+                    <span className="truncate">{ps.player_name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Pitch with heatmap */}
+            <div className="flex-1 flex justify-center">
+              <FootballPitch ref={pitchRef} width={PITCH_WIDTH}>
+                <defs>
+                  <radialGradient id="heat-hot">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.7" />
+                    <stop offset="40%" stopColor="#f59e0b" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                  </radialGradient>
+                  <radialGradient id="heat-warm">
+                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.5" />
+                    <stop offset="60%" stopColor="#22c55e" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                  </radialGradient>
+                  <radialGradient id="heat-cool">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                  </radialGradient>
+                  <filter id="heat-blur">
+                    <feGaussianBlur stdDeviation="12" />
+                  </filter>
+                </defs>
+                <g filter="url(#heat-blur)" style={{ mixBlendMode: 'screen' }}>
+                  {(() => {
+                    const playersToShow = heatmapPlayer ? [heatmapPlayer] : match.player_stats;
+                    const zones = [];
+                    playersToShow.forEach(ps => {
+                      (ps.heatmap || []).forEach(z => {
+                        const key = `${z.row}-${z.col}`;
+                        const existing = zones.find(e => e.key === key);
+                        if (existing) { existing.intensity = Math.min(1, existing.intensity + z.intensity * 0.3); }
+                        else { zones.push({ ...z, key, intensity: z.intensity }); }
+                      });
+                    });
+                    const pw = PITCH_WIDTH;
+                    const ph = pw * PITCH_RATIO;
+                    return zones.map((z, i) => {
+                      const cx = 20 + ((z.col + 0.5) / 6) * (pw - 40);
+                      const cy = 20 + ((z.row + 0.5) / 4) * (ph - 40);
+                      const grad = z.intensity > 0.65 ? 'url(#heat-hot)' : z.intensity > 0.35 ? 'url(#heat-warm)' : 'url(#heat-cool)';
+                      const r = 25 + z.intensity * 30;
+                      return <circle key={i} cx={cx} cy={cy} r={r} fill={grad} opacity={Math.max(0.2, z.intensity)} />;
+                    });
+                  })()}
+                </g>
+                {/* Player position dots (small) */}
+                {(() => {
+                  const pw = PITCH_WIDTH;
+                  const ph = pw * PITCH_RATIO;
+                  const playersToShow = heatmapPlayer ? [heatmapPlayer] : [];
+                  return playersToShow.map((ps, i) => {
+                    const maxZone = (ps.heatmap || []).reduce((a, b) => (b.intensity > a.intensity ? b : a), { row: 2, col: 3, intensity: 0 });
+                    const cx = 20 + ((maxZone.col + 0.5) / 6) * (pw - 40);
+                    const cy = 20 + ((maxZone.row + 0.5) / 4) * (ph - 40);
+                    return (
+                      <g key={i}>
+                        <circle cx={cx} cy={cy} r="10" fill="#22c55e" fillOpacity="0.3" stroke="#22c55e" strokeWidth="1.5" />
+                        <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="7" fontWeight="bold">
+                          {ps.jersey_number || ''}
+                        </text>
+                        <text x={cx} y={cy + 18} textAnchor="middle" fill="white" fontSize="7" fontWeight="600"
+                          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.9)' }}>
+                          {ps.player_name?.split(' ').pop()}
+                        </text>
+                      </g>
+                    );
+                  });
+                })()}
+              </FootballPitch>
+            </div>
+          </div>
+          {heatmapPlayer && (
+            <div className="mt-4 flex items-center gap-4 justify-center text-xs text-zinc-400">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500/70" /> {t('matchAdvanced.highActivity')}</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500/50" /> {t('matchAdvanced.mediumActivity')}</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500/30" /> {t('matchAdvanced.lowActivity')}</span>
+            </div>
           )}
         </div>
       )}

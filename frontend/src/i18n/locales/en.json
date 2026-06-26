@@ -55,7 +55,8 @@
     "parentPortal": "Parent Portal",
     "settings": "Settings",
     "signOut": "Sign Out",
-    "seasons": "Seasons"
+    "seasons": "Seasons",
+    "formations": "Formations"
   },
   "landing": {
     "subtitle": "Youth Football Academy Platform",
@@ -417,6 +418,27 @@
     "playersUsed": "Players",
     "win": "Win",
     "draw": "Draw",
-    "loss": "Loss"
+    "loss": "Loss",
+    "heatmap": "Heatmap",
+    "selectPlayer": "Select Player",
+    "allPlayers": "All Players (combined)",
+    "highActivity": "High activity",
+    "mediumActivity": "Medium activity",
+    "lowActivity": "Low activity"
+  },
+  "formations": {
+    "title": "Formation Analysis",
+    "subtitle": "Design and manage your team formations with drag & drop",
+    "selectTeam": "Select Team",
+    "preset": "Preset Formations",
+    "autoAssign": "Auto Assign Players",
+    "resetPositions": "Reset Positions",
+    "formationName": "Formation name...",
+    "save": "Save Formation",
+    "savedFormations": "Saved Formations",
+    "selectedPosition": "Selected Position",
+    "availablePlayers": "Available Players",
+    "allAssigned": "All players assigned",
+    "dragToMove": "Drag players to reposition"
   }
 }

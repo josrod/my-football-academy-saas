@@ -55,7 +55,8 @@
     "parentPortal": "Portale Genitori",
     "settings": "Impostazioni",
     "signOut": "Esci",
-    "seasons": "Stagioni"
+    "seasons": "Stagioni",
+    "formations": "Formazioni"
   },
   "landing": {
     "subtitle": "Piattaforma per Accademie di Calcio Giovanile",
@@ -417,6 +418,27 @@
     "playersUsed": "Giocatori",
     "win": "Vittoria",
     "draw": "Pareggio",
-    "loss": "Sconfitta"
+    "loss": "Sconfitta",
+    "heatmap": "Mappa di Calore",
+    "selectPlayer": "Seleziona Giocatore",
+    "allPlayers": "Tutti i Giocatori (combinato)",
+    "highActivity": "Alta attività",
+    "mediumActivity": "Media attività",
+    "lowActivity": "Bassa attività"
+  },
+  "formations": {
+    "title": "Analisi delle Formazioni",
+    "subtitle": "Progetta e gestisci le formazioni con trascinamento",
+    "selectTeam": "Seleziona Squadra",
+    "preset": "Formazioni Predefinite",
+    "autoAssign": "Assegnazione Automatica",
+    "resetPositions": "Reimposta Posizioni",
+    "formationName": "Nome della formazione...",
+    "save": "Salva Formazione",
+    "savedFormations": "Formazioni Salvate",
+    "selectedPosition": "Posizione Selezionata",
+    "availablePlayers": "Giocatori Disponibili",
+    "allAssigned": "Tutti i giocatori assegnati",
+    "dragToMove": "Trascina per riposizionare"
   }
 }

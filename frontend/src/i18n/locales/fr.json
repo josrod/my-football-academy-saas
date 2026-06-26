@@ -55,7 +55,8 @@
     "parentPortal": "Portail Parents",
     "settings": "Paramètres",
     "signOut": "Se Déconnecter",
-    "seasons": "Saisons"
+    "seasons": "Saisons",
+    "formations": "Formations"
   },
   "landing": {
     "subtitle": "Plateforme d'Académies de Football Jeunes",
@@ -417,6 +418,27 @@
     "playersUsed": "Joueurs",
     "win": "Victoire",
     "draw": "Match Nul",
-    "loss": "Défaite"
+    "loss": "Défaite",
+    "heatmap": "Carte de Chaleur",
+    "selectPlayer": "Sélectionner Joueur",
+    "allPlayers": "Tous les Joueurs (combiné)",
+    "highActivity": "Haute activité",
+    "mediumActivity": "Activité moyenne",
+    "lowActivity": "Faible activité"
+  },
+  "formations": {
+    "title": "Analyse de Formations",
+    "subtitle": "Concevez et gérez les formations avec glisser-déposer",
+    "selectTeam": "Sélectionner l'Équipe",
+    "preset": "Formations Prédéfinies",
+    "autoAssign": "Attribution Automatique",
+    "resetPositions": "Réinitialiser les Positions",
+    "formationName": "Nom de la formation...",
+    "save": "Enregistrer la Formation",
+    "savedFormations": "Formations Enregistrées",
+    "selectedPosition": "Position Sélectionnée",
+    "availablePlayers": "Joueurs Disponibles",
+    "allAssigned": "Tous les joueurs attribués",
+    "dragToMove": "Glisser pour repositionner"
   }
 }

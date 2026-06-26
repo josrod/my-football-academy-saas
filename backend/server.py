@@ -268,6 +268,12 @@ class PlayerMetricCreate(BaseModel):
     dribbling: Optional[float] = None
     date: Optional[str] = None
 
+class FormationCreate(BaseModel):
+    name: str
+    formation_type: str = "4-3-3"
+    team_id: str
+    positions: List[dict] = []
+
 class InjuryCreate(BaseModel):
     player_id: str
     type: str
@@ -291,6 +297,30 @@ class SeasonUpdate(BaseModel):
     status: Optional[str] = None
 
 # ---- Routes ----
+
+# Heatmap generation helper
+def generate_heatmap_zones(position: str, minutes_played: int):
+    """Generate realistic heatmap zone data based on player position (6x4 grid = 24 zones)"""
+    zones = []
+    # Position weights: rows 0-3 = own goal to opponent goal, cols 0-5 = left to right
+    pos_weights = {
+        "Goalkeeper": [(0, j, random.uniform(0.6, 1.0) if 2 <= j <= 3 else random.uniform(0.0, 0.15)) for j in range(6) for _ in range(1)] + [(i, j, random.uniform(0.0, 0.05)) for i in range(1, 4) for j in range(6)],
+        "Defender": [(0, j, random.uniform(0.3, 0.7) if 1 <= j <= 4 else random.uniform(0.1, 0.3)) for j in range(6)] + [(1, j, random.uniform(0.5, 0.9)) for j in range(6)] + [(2, j, random.uniform(0.1, 0.4)) for j in range(6)] + [(3, j, random.uniform(0.0, 0.1)) for j in range(6)],
+        "Midfielder": [(0, j, random.uniform(0.0, 0.15)) for j in range(6)] + [(1, j, random.uniform(0.3, 0.6)) for j in range(6)] + [(2, j, random.uniform(0.5, 0.95)) for j in range(6)] + [(3, j, random.uniform(0.15, 0.4)) for j in range(6)],
+        "Forward": [(0, j, random.uniform(0.0, 0.05)) for j in range(6)] + [(1, j, random.uniform(0.05, 0.2)) for j in range(6)] + [(2, j, random.uniform(0.2, 0.5)) for j in range(6)] + [(3, j, random.uniform(0.5, 1.0) if 1 <= j <= 4 else random.uniform(0.2, 0.5)) for j in range(6)],
+    }
+    base = "Midfielder"
+    if position:
+        p = position.lower()
+        if "goal" in p or "gk" in p: base = "Goalkeeper"
+        elif "def" in p or "back" in p or "cb" in p: base = "Defender"
+        elif "mid" in p or "mf" in p: base = "Midfielder"
+        elif "for" in p or "str" in p or "wing" in p or "fw" in p or "att" in p: base = "Forward"
+    
+    intensity_scale = min(minutes_played / 90.0, 1.0)
+    for row, col, val in pos_weights.get(base, pos_weights["Midfielder"]):
+        zones.append({"row": row, "col": col, "intensity": round(val * intensity_scale, 2)})
+    return zones
 
 @app.get("/api/health")
 async def health():
@@ -731,6 +761,7 @@ async def get_match(match_id: str, request: Request):
             s_data["position"] = player.get("position", "")
             s_data["jersey_number"] = player.get("jersey_number")
             s_data["photo_url"] = player.get("photo_url", "")
+            s_data["heatmap"] = generate_heatmap_zones(player.get("position", ""), s.get("minutes_played", 0))
         enriched_stats.append(s_data)
     
     # Sort by rating desc
@@ -814,6 +845,91 @@ async def update_match(match_id: str, request: Request):
         {"$set": body}
     )
     return {"status": "updated"}
+
+# FORMATIONS
+PRESET_FORMATIONS = {
+    "4-3-3": [
+        {"role": "GK", "x": 50, "y": 92}, {"role": "LB", "x": 15, "y": 72}, {"role": "CB", "x": 37, "y": 76},
+        {"role": "CB", "x": 63, "y": 76}, {"role": "RB", "x": 85, "y": 72}, {"role": "CM", "x": 30, "y": 52},
+        {"role": "CM", "x": 50, "y": 48}, {"role": "CM", "x": 70, "y": 52}, {"role": "LW", "x": 20, "y": 24},
+        {"role": "ST", "x": 50, "y": 18}, {"role": "RW", "x": 80, "y": 24}
+    ],
+    "4-4-2": [
+        {"role": "GK", "x": 50, "y": 92}, {"role": "LB", "x": 15, "y": 72}, {"role": "CB", "x": 37, "y": 76},
+        {"role": "CB", "x": 63, "y": 76}, {"role": "RB", "x": 85, "y": 72}, {"role": "LM", "x": 15, "y": 48},
+        {"role": "CM", "x": 37, "y": 52}, {"role": "CM", "x": 63, "y": 52}, {"role": "RM", "x": 85, "y": 48},
+        {"role": "ST", "x": 37, "y": 22}, {"role": "ST", "x": 63, "y": 22}
+    ],
+    "3-5-2": [
+        {"role": "GK", "x": 50, "y": 92}, {"role": "CB", "x": 25, "y": 74}, {"role": "CB", "x": 50, "y": 76},
+        {"role": "CB", "x": 75, "y": 74}, {"role": "LWB", "x": 10, "y": 50}, {"role": "CM", "x": 35, "y": 55},
+        {"role": "CDM", "x": 50, "y": 58}, {"role": "CM", "x": 65, "y": 55}, {"role": "RWB", "x": 90, "y": 50},
+        {"role": "ST", "x": 37, "y": 22}, {"role": "ST", "x": 63, "y": 22}
+    ],
+    "4-2-3-1": [
+        {"role": "GK", "x": 50, "y": 92}, {"role": "LB", "x": 15, "y": 72}, {"role": "CB", "x": 37, "y": 76},
+        {"role": "CB", "x": 63, "y": 76}, {"role": "RB", "x": 85, "y": 72}, {"role": "CDM", "x": 37, "y": 58},
+        {"role": "CDM", "x": 63, "y": 58}, {"role": "LW", "x": 20, "y": 36}, {"role": "CAM", "x": 50, "y": 38},
+        {"role": "RW", "x": 80, "y": 36}, {"role": "ST", "x": 50, "y": 18}
+    ],
+    "3-4-3": [
+        {"role": "GK", "x": 50, "y": 92}, {"role": "CB", "x": 25, "y": 74}, {"role": "CB", "x": 50, "y": 76},
+        {"role": "CB", "x": 75, "y": 74}, {"role": "LM", "x": 15, "y": 50}, {"role": "CM", "x": 37, "y": 52},
+        {"role": "CM", "x": 63, "y": 52}, {"role": "RM", "x": 85, "y": 50}, {"role": "LW", "x": 20, "y": 24},
+        {"role": "ST", "x": 50, "y": 18}, {"role": "RW", "x": 80, "y": 24}
+    ],
+}
+
+@app.get("/api/formations/presets")
+async def get_formation_presets(request: Request):
+    await get_user_from_request(request)
+    return PRESET_FORMATIONS
+
+@app.get("/api/teams/{team_id}/formations")
+async def get_team_formations(team_id: str, request: Request):
+    user = await get_user_from_request(request)
+    formations = await db.formations.find({"team_id": team_id, "club_id": user["club_id"]}).sort("created_at", -1).to_list(50)
+    return str_ids(formations)
+
+@app.post("/api/teams/{team_id}/formations")
+async def create_formation(team_id: str, data: FormationCreate, request: Request):
+    user = await get_user_from_request(request)
+    team = await db.teams.find_one({"_id": ObjectId(team_id), "club_id": user["club_id"]})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    doc = {
+        "name": data.name,
+        "formation_type": data.formation_type,
+        "team_id": team_id,
+        "positions": data.positions,
+        "club_id": user["club_id"],
+        "created_by": user["name"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.formations.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
+@app.put("/api/formations/{formation_id}")
+async def update_formation(formation_id: str, request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    body.pop("id", None)
+    body.pop("_id", None)
+    body.pop("club_id", None)
+    body["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.formations.update_one(
+        {"_id": ObjectId(formation_id), "club_id": user["club_id"]},
+        {"$set": body}
+    )
+    return {"status": "updated"}
+
+@app.delete("/api/formations/{formation_id}")
+async def delete_formation(formation_id: str, request: Request):
+    user = await get_user_from_request(request)
+    await db.formations.delete_one({"_id": ObjectId(formation_id), "club_id": user["club_id"]})
+    return {"status": "deleted"}
 
 # CALENDAR
 @app.get("/api/calendar")

@@ -55,7 +55,8 @@
     "parentPortal": "Elternportal",
     "settings": "Einstellungen",
     "signOut": "Abmelden",
-    "seasons": "Saisons"
+    "seasons": "Saisons",
+    "formations": "Formationen"
   },
   "landing": {
     "subtitle": "Jugendfußball-Akademie Plattform",
@@ -417,6 +418,27 @@
     "playersUsed": "Spieler",
     "win": "Sieg",
     "draw": "Unentschieden",
-    "loss": "Niederlage"
+    "loss": "Niederlage",
+    "heatmap": "Heatmap",
+    "selectPlayer": "Spieler Auswählen",
+    "allPlayers": "Alle Spieler (kombiniert)",
+    "highActivity": "Hohe Aktivität",
+    "mediumActivity": "Mittlere Aktivität",
+    "lowActivity": "Geringe Aktivität"
+  },
+  "formations": {
+    "title": "Formationsanalyse",
+    "subtitle": "Formationen mit Drag & Drop gestalten und verwalten",
+    "selectTeam": "Team Auswählen",
+    "preset": "Voreingestellte Formationen",
+    "autoAssign": "Automatisch Zuweisen",
+    "resetPositions": "Positionen Zurücksetzen",
+    "formationName": "Formationsname...",
+    "save": "Formation Speichern",
+    "savedFormations": "Gespeicherte Formationen",
+    "selectedPosition": "Ausgewählte Position",
+    "availablePlayers": "Verfügbare Spieler",
+    "allAssigned": "Alle Spieler zugewiesen",
+    "dragToMove": "Zum Verschieben ziehen"
   }
 }

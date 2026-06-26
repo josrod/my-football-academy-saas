@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../api';
 import {
   LayoutDashboard, Users, Shield, Dumbbell, Swords, CalendarDays,
-  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell, Trophy
+  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell, Trophy, Crosshair
 } from 'lucide-react';
 
 const LANGS = [
@@ -46,6 +46,7 @@ export default function Layout({ children }) {
     { path: '/teams', label: t('nav.teams'), icon: Shield },
     { path: '/training', label: t('nav.training'), icon: Dumbbell },
     { path: '/matches', label: t('nav.matches'), icon: Swords },
+    { path: '/formations', label: t('nav.formations'), icon: Crosshair },
     { path: '/calendar', label: t('nav.calendar'), icon: CalendarDays },
     { path: '/scouting', label: t('nav.scouting'), icon: Search },
     { path: '/reports', label: t('nav.reports'), icon: FileBarChart },

@@ -55,7 +55,8 @@
     "parentPortal": "Portal de Padres",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión",
-    "seasons": "Temporadas"
+    "seasons": "Temporadas",
+    "formations": "Formaciones"
   },
   "landing": {
     "subtitle": "Plataforma de Academias de Fútbol Juvenil",
@@ -417,6 +418,27 @@
     "playersUsed": "Jugadores",
     "win": "Victoria",
     "draw": "Empate",
-    "loss": "Derrota"
+    "loss": "Derrota",
+    "heatmap": "Mapa de Calor",
+    "selectPlayer": "Seleccionar Jugador",
+    "allPlayers": "Todos los Jugadores (combinado)",
+    "highActivity": "Alta actividad",
+    "mediumActivity": "Actividad media",
+    "lowActivity": "Baja actividad"
+  },
+  "formations": {
+    "title": "Análisis de Formaciones",
+    "subtitle": "Diseña y gestiona las formaciones de tu equipo con arrastrar y soltar",
+    "selectTeam": "Seleccionar Equipo",
+    "preset": "Formaciones Predefinidas",
+    "autoAssign": "Asignar Automáticamente",
+    "resetPositions": "Restablecer Posiciones",
+    "formationName": "Nombre de la formación...",
+    "save": "Guardar Formación",
+    "savedFormations": "Formaciones Guardadas",
+    "selectedPosition": "Posición Seleccionada",
+    "availablePlayers": "Jugadores Disponibles",
+    "allAssigned": "Todos los jugadores asignados",
+    "dragToMove": "Arrastra para reposicionar"
   }
 }

@@ -23,6 +23,7 @@ import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
 import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
+import FormationAnalysis from './pages/FormationAnalysis';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -64,6 +65,7 @@ function App() {
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/seasons" element={<ProtectedRoute><Seasons /></ProtectedRoute>} />
           <Route path="/seasons/:id" element={<ProtectedRoute><SeasonDetail /></ProtectedRoute>} />
+          <Route path="/formations" element={<ProtectedRoute><FormationAnalysis /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
