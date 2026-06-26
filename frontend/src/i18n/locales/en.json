@@ -40,7 +40,9 @@
     "send": "Send",
     "markAsRead": "Mark as read",
     "notifications": "Notifications",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -56,7 +58,9 @@
     "settings": "Settings",
     "signOut": "Sign Out",
     "seasons": "Seasons",
-    "formations": "Formations"
+    "formations": "Formations",
+    "comparePlayers": "Compare",
+    "aiInsights": "AI Insights"
   },
   "landing": {
     "subtitle": "Youth Football Academy Platform",
@@ -453,5 +457,47 @@
     "availablePlayers": "Available Players",
     "allAssigned": "All players assigned",
     "dragToMove": "Drag players to reposition"
+  },
+  "compare": {
+    "title": "Player Comparison",
+    "subtitle": "Compare two players side by side",
+    "selectPlayer": "Select Player",
+    "player1": "Player 1",
+    "player2": "Player 2",
+    "stats": "Statistics",
+    "radar": "Radar Chart",
+    "matchStats": "Match Stats",
+    "noPlayers": "Select two players to compare",
+    "goals": "Goals",
+    "assists": "Assists",
+    "matchesPlayed": "Matches",
+    "avgRating": "Avg Rating",
+    "yellowCards": "Yellow Cards",
+    "minutesPlayed": "Minutes",
+    "attendance": "Attendance",
+    "speed": "Speed",
+    "stamina": "Stamina",
+    "technique": "Technique",
+    "passing": "Passing",
+    "shooting": "Shooting",
+    "dribbling": "Dribbling",
+    "strength": "Strength",
+    "agility": "Agility",
+    "better": "Better",
+    "equal": "Equal",
+    "overall": "Overall Score"
+  },
+  "aiInsights": {
+    "title": "AI Performance Insights",
+    "subtitle": "AI-powered analysis of your academy data",
+    "generating": "Generating insights...",
+    "regenerate": "Regenerate",
+    "lastGenerated": "Last generated",
+    "noInsights": "Click generate to get AI-powered analysis of your academy's performance data",
+    "generate": "Generate Insights",
+    "overview": "Overview",
+    "playerInsights": "Player Insights",
+    "teamInsights": "Team Insights",
+    "recommendations": "Recommendations"
   }
 }

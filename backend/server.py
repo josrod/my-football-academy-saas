@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, Query, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, Query, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timezone, timedelta
@@ -13,8 +13,11 @@ import secrets
 import jwt
 import random
 import uuid
+import json as json_module
+import asyncio
 import requests as http_requests
 from dotenv import load_dotenv
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 load_dotenv()
 
@@ -550,6 +553,49 @@ async def delete_player(player_id: str, request: Request):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Player not found")
     return {"status": "deleted"}
+
+@app.get("/api/players/{player_id}/stats")
+async def get_player_stats(player_id: str, request: Request):
+    user = await get_user_from_request(request)
+    player = await db.players.find_one({"_id": ObjectId(player_id), "club_id": user["club_id"]})
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    # Get latest metrics
+    metric = await db.player_metrics.find_one({"player_id": player_id, "club_id": user["club_id"]}, sort=[("date", -1)])
+    metrics = {}
+    if metric:
+        for k in ["speed", "stamina", "strength", "agility", "technique", "passing", "shooting", "dribbling"]:
+            metrics[k] = metric.get(k, 0) or 0
+
+    # Get match stats
+    match_stats_list = await db.match_player_stats.find({"player_id": player_id}).to_list(200)
+    total_goals = sum(s.get("goals", 0) for s in match_stats_list)
+    total_assists = sum(s.get("assists", 0) for s in match_stats_list)
+    total_yc = sum(s.get("yellow_cards", 0) for s in match_stats_list)
+    total_minutes = sum(s.get("minutes_played", 0) for s in match_stats_list)
+    ratings = [s.get("rating", 0) for s in match_stats_list if s.get("rating")]
+    avg_rating = sum(ratings) / len(ratings) if ratings else 0
+
+    # Get attendance
+    attendances = await db.attendance.find({"player_id": player_id, "club_id": user["club_id"]}).to_list(200)
+    attendance_pct = (len([a for a in attendances if a.get("present")]) / len(attendances) * 100) if attendances else 0
+
+    return {
+        "player_id": player_id,
+        "player_name": f"{player['first_name']} {player['last_name']}",
+        "position": player.get("position", ""),
+        "metrics": metrics,
+        "match_stats": {
+            "matches_played": len(match_stats_list),
+            "total_goals": total_goals,
+            "total_assists": total_assists,
+            "total_yellow_cards": total_yc,
+            "total_minutes": total_minutes,
+            "avg_rating": round(avg_rating, 1),
+        },
+        "attendance_pct": round(attendance_pct, 1),
+    }
 
 # PLAYER METRICS
 @app.post("/api/player-metrics")
@@ -2039,3 +2085,245 @@ async def seed_data():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+# LLM Configuration
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+
+# WebSocket connection manager
+class ConnectionManager:
+    def __init__(self):
+        self.active: dict = {}  # user_id -> list[WebSocket]
+
+    async def connect(self, ws: WebSocket, user_id: str):
+        await ws.accept()
+        if user_id not in self.active:
+            self.active[user_id] = []
+        self.active[user_id].append(ws)
+
+    def disconnect(self, ws: WebSocket, user_id: str):
+        if user_id in self.active:
+            self.active[user_id] = [w for w in self.active[user_id] if w != ws]
+            if not self.active[user_id]:
+                del self.active[user_id]
+
+    async def send_to_user(self, user_id: str, data: dict):
+        for ws in self.active.get(user_id, []):
+            try:
+                await ws.send_json(data)
+            except:
+                pass
+
+    async def broadcast_club(self, club_id: str, data: dict):
+        users = await db.users.find({"club_id": club_id}).to_list(500)
+        for u in users:
+            uid = str(u["_id"])
+            await self.send_to_user(uid, data)
+
+ws_manager = ConnectionManager()
+
+@app.websocket("/api/ws/{token}")
+async def websocket_endpoint(websocket: WebSocket, token: str):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload["user_id"]
+    except:
+        await websocket.close(code=4001)
+        return
+    await ws_manager.connect(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_text("pong")
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id)
+
+# Helper to create notification and push via WebSocket
+async def create_and_push_notification(user_id: str, club_id: str, message: str, notif_type: str = "info"):
+    doc = {
+        "user_id": user_id, "club_id": club_id,
+        "message": message, "type": notif_type,
+        "is_read": False, "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.notifications.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    await ws_manager.send_to_user(user_id, {"type": "notification", "data": doc})
+    return doc
+
+# AI Insights endpoint
+@app.post("/api/ai/insights")
+async def generate_ai_insights(request: Request):
+    user = await get_user_from_request(request)
+    club_id = user["club_id"]
+
+    # Gather data for AI analysis
+    players = await db.players.find({"club_id": club_id}).to_list(200)
+    matches = await db.matches.find({"club_id": club_id, "status": "completed"}).to_list(50)
+    teams = await db.teams.find({"club_id": club_id}).to_list(20)
+
+    # Build match summaries
+    match_summaries = []
+    for m in matches:
+        stats = await db.match_player_stats.find({"match_id": str(m["_id"])}).to_list(50)
+        top_scorer = max(stats, key=lambda s: s.get("goals", 0), default=None)
+        top_rated = max(stats, key=lambda s: s.get("rating", 0), default=None)
+        ts_name = ts_rated = ""
+        if top_scorer:
+            p = await db.players.find_one({"_id": ObjectId(top_scorer["player_id"])})
+            ts_name = f"{p['first_name']} {p['last_name']}" if p else "Unknown"
+        if top_rated:
+            p2 = await db.players.find_one({"_id": ObjectId(top_rated["player_id"])})
+            ts_rated = f"{p2['first_name']} {p2['last_name']}" if p2 else "Unknown"
+        match_summaries.append(
+            f"vs {m.get('opponent','?')} ({m.get('home_score',0)}-{m.get('away_score',0)}) "
+            f"Formation: {m.get('formation','?')} | Top scorer: {ts_name} ({top_scorer.get('goals',0) if top_scorer else 0}g) | "
+            f"Best rated: {ts_rated} ({top_rated.get('rating',0) if top_rated else 0})"
+        )
+
+    # Player summaries
+    player_summaries = []
+    for p in players[:30]:
+        pid = str(p["_id"])
+        pstats = await db.match_player_stats.find({"player_id": pid}).to_list(50)
+        goals = sum(s.get("goals", 0) for s in pstats)
+        assists = sum(s.get("assists", 0) for s in pstats)
+        ratings = [s.get("rating", 0) for s in pstats if s.get("rating")]
+        avg_r = round(sum(ratings) / len(ratings), 1) if ratings else 0
+        metric = await db.player_metrics.find_one({"player_id": pid}, sort=[("date", -1)])
+        skills = ""
+        if metric:
+            skills = f"Speed:{metric.get('speed',0)} Technique:{metric.get('technique',0)} Shooting:{metric.get('shooting',0)} Passing:{metric.get('passing',0)}"
+        player_summaries.append(f"{p['first_name']} {p['last_name']} ({p.get('position','?')}, age {p.get('age','?')}) - {len(pstats)} matches, {goals}G {assists}A, Avg rating: {avg_r}, {skills}")
+
+    prompt_text = f"""You are a football academy data analyst. Analyze the following academy data and provide insights.
+
+TEAMS ({len(teams)}): {', '.join(t['name'] for t in teams)}
+
+COMPLETED MATCHES ({len(matches)}):
+{chr(10).join(match_summaries)}
+
+PLAYER DATA ({len(player_summaries)} players):
+{chr(10).join(player_summaries)}
+
+Provide a JSON response with this exact structure:
+{{
+  "overview": "2-3 sentence summary of the academy's performance",
+  "player_insights": [
+    {{"player": "Name", "insight": "Specific insight", "recommendation": "Action to take"}},
+    ... (top 5 most interesting)
+  ],
+  "team_insights": [
+    {{"topic": "Title", "insight": "Detail", "data_point": "Specific stat"}}
+  ],
+  "recommendations": [
+    {{"priority": "high/medium/low", "title": "Title", "description": "Detail"}}
+  ],
+  "best_formation": "Which formation performed best and why",
+  "top_performer": "Name and why"
+}}
+
+Respond ONLY with valid JSON, no markdown."""
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"insights-{club_id}-{uuid.uuid4().hex[:8]}",
+            system_message="You are an expert football academy analyst. Always respond with valid JSON only."
+        ).with_model("openai", "gpt-5.2")
+
+        response = await chat.send_message(UserMessage(text=prompt_text))
+        # Parse the JSON response
+        text = response.content if hasattr(response, 'content') else str(response)
+        # Clean markdown code blocks if present
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        if text.startswith("json"):
+            text = text[4:].strip()
+
+        insights = json_module.loads(text)
+        # Store for caching
+        await db.ai_insights.update_one(
+            {"club_id": club_id},
+            {"$set": {"club_id": club_id, "insights": insights, "generated_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True
+        )
+        return {"insights": insights, "generated_at": datetime.now(timezone.utc).isoformat()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
+
+@app.get("/api/ai/insights")
+async def get_cached_insights(request: Request):
+    user = await get_user_from_request(request)
+    cached = await db.ai_insights.find_one({"club_id": user["club_id"]})
+    if cached:
+        return {"insights": cached["insights"], "generated_at": cached.get("generated_at")}
+    return {"insights": None, "generated_at": None}
+
+# Auto-translate announcement
+@app.post("/api/announcements/{announcement_id}/translate")
+async def translate_announcement(announcement_id: str, request: Request):
+    user = await get_user_from_request(request)
+    ann = await db.announcements.find_one({"_id": ObjectId(announcement_id), "club_id": user["club_id"]})
+    if not ann:
+        raise HTTPException(status_code=404, detail="Announcement not found")
+
+    original_text = ann.get("message", "") or ann.get("content", "")
+    original_title = ann.get("title", "")
+
+    prompt_text = f"""Translate the following announcement to these languages: Spanish (es), German (de), French (fr), Portuguese (pt), Italian (it), Arabic (ar).
+
+Title: {original_title}
+Content: {original_text}
+
+Respond with valid JSON only, using this structure:
+{{
+  "es": {{"title": "...", "content": "..."}},
+  "de": {{"title": "...", "content": "..."}},
+  "fr": {{"title": "...", "content": "..."}},
+  "pt": {{"title": "...", "content": "..."}},
+  "it": {{"title": "...", "content": "..."}},
+  "ar": {{"title": "...", "content": "..."}}
+}}
+
+Respond ONLY with valid JSON."""
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"translate-{announcement_id}",
+            system_message="You are a professional translator. Always respond with valid JSON only."
+        ).with_model("openai", "gpt-5.2")
+
+        response = await chat.send_message(UserMessage(text=prompt_text))
+        text = response.content if hasattr(response, 'content') else str(response)
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        text = text.strip()
+        if text.startswith("json"):
+            text = text[4:].strip()
+
+        translations = json_module.loads(text)
+        translations["en"] = {"title": original_title, "content": original_text}
+
+        await db.announcements.update_one(
+            {"_id": ObjectId(announcement_id)},
+            {"$set": {"translations": translations}}
+        )
+
+        # Push notification to all club users
+        await ws_manager.broadcast_club(user["club_id"], {
+            "type": "announcement_translated",
+            "data": {"announcement_id": announcement_id}
+        })
+
+        return {"translations": translations}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")

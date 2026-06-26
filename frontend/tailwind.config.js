@@ -4,9 +4,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: { DEFAULT: '#09090b', paper: '#121212', subtle: '#18181b' },
-        foreground: { DEFAULT: '#ffffff', muted: '#a1a1aa', dim: '#52525b' },
-        primary: { DEFAULT: '#22c55e', foreground: '#000000', hover: '#16a34a' },
+        background: { DEFAULT: 'var(--bg-primary)', paper: 'var(--bg-secondary)', subtle: 'var(--bg-card)' },
+        foreground: { DEFAULT: 'var(--text-primary)', muted: 'var(--text-secondary)', dim: 'var(--text-muted)' },
+        primary: { DEFAULT: 'var(--accent)', foreground: '#000000', hover: '#16a34a' },
         secondary: { DEFAULT: '#27272a', foreground: '#ffffff' },
         accent: { DEFAULT: '#3b82f6', foreground: '#ffffff' },
         destructive: { DEFAULT: '#ef4444', foreground: '#ffffff' },

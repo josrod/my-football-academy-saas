@@ -40,7 +40,9 @@
     "send": "Enviar",
     "markAsRead": "Marcar como leída",
     "notifications": "Notificaciones",
-    "noNotifications": "Sin notificaciones"
+    "noNotifications": "Sin notificaciones",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro"
   },
   "nav": {
     "dashboard": "Panel",
@@ -56,7 +58,9 @@
     "settings": "Configuración",
     "signOut": "Cerrar Sesión",
     "seasons": "Temporadas",
-    "formations": "Formaciones"
+    "formations": "Formaciones",
+    "comparePlayers": "Comparar",
+    "aiInsights": "IA Insights"
   },
   "landing": {
     "subtitle": "Plataforma de Academias de Fútbol Juvenil",
@@ -453,5 +457,47 @@
     "availablePlayers": "Jugadores Disponibles",
     "allAssigned": "Todos los jugadores asignados",
     "dragToMove": "Arrastra para reposicionar"
+  },
+  "compare": {
+    "title": "Comparación de Jugadores",
+    "subtitle": "Compara dos jugadores lado a lado",
+    "selectPlayer": "Seleccionar Jugador",
+    "player1": "Jugador 1",
+    "player2": "Jugador 2",
+    "stats": "Estadísticas",
+    "radar": "Gráfico Radar",
+    "matchStats": "Stats de Partidos",
+    "noPlayers": "Selecciona dos jugadores para comparar",
+    "goals": "Goles",
+    "assists": "Asistencias",
+    "matchesPlayed": "Partidos",
+    "avgRating": "Nota Media",
+    "yellowCards": "Tarjetas Amarillas",
+    "minutesPlayed": "Minutos",
+    "attendance": "Asistencia",
+    "speed": "Velocidad",
+    "stamina": "Resistencia",
+    "technique": "Técnica",
+    "passing": "Pase",
+    "shooting": "Tiro",
+    "dribbling": "Regate",
+    "strength": "Fuerza",
+    "agility": "Agilidad",
+    "better": "Mejor",
+    "equal": "Igual",
+    "overall": "Puntuación Global"
+  },
+  "aiInsights": {
+    "title": "Insights de Rendimiento IA",
+    "subtitle": "Análisis impulsado por IA de los datos de tu academia",
+    "generating": "Generando insights...",
+    "regenerate": "Regenerar",
+    "lastGenerated": "Última generación",
+    "noInsights": "Haz clic en generar para obtener un análisis IA del rendimiento de tu academia",
+    "generate": "Generar Insights",
+    "overview": "Resumen",
+    "playerInsights": "Insights de Jugadores",
+    "teamInsights": "Insights de Equipos",
+    "recommendations": "Recomendaciones"
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -24,6 +25,8 @@ import Notifications from './pages/Notifications';
 import Seasons from './pages/Seasons';
 import SeasonDetail from './pages/SeasonDetail';
 import FormationAnalysis from './pages/FormationAnalysis';
+import PlayerComparison from './pages/PlayerComparison';
+import AIInsights from './pages/AIInsights';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -41,6 +44,7 @@ function PublicRoute({ children }) {
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -66,10 +70,13 @@ function App() {
           <Route path="/seasons" element={<ProtectedRoute><Seasons /></ProtectedRoute>} />
           <Route path="/seasons/:id" element={<ProtectedRoute><SeasonDetail /></ProtectedRoute>} />
           <Route path="/formations" element={<ProtectedRoute><FormationAnalysis /></ProtectedRoute>} />
+          <Route path="/compare-players" element={<ProtectedRoute><PlayerComparison /></ProtectedRoute>} />
+          <Route path="/ai-insights" element={<ProtectedRoute><AIInsights /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
 import {
   LayoutDashboard, Users, Shield, Dumbbell, Swords, CalendarDays,
-  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell, Trophy, Crosshair
+  Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell, Trophy, Crosshair,
+  Sun, Moon, GitCompare, Brain
 } from 'lucide-react';
 
 const LANGS = [
@@ -20,12 +22,14 @@ const LANGS = [
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const wsRef = React.useRef(null);
 
   const fetchUnread = useCallback(async () => {
     try {
@@ -36,9 +40,43 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     fetchUnread();
-    const interval = setInterval(fetchUnread, 30000);
+    const interval = setInterval(fetchUnread, 60000);
     return () => clearInterval(interval);
   }, [fetchUnread, location.pathname]);
+
+  // WebSocket connection for real-time notifications
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+    const wsUrl = backendUrl.replace('https://', 'wss://').replace('http://', 'ws://') + `/api/ws/${token}`;
+    let ws;
+    let reconnectTimer;
+    const connect = () => {
+      try {
+        ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+        ws.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data.type === 'notification') {
+              setUnreadCount(prev => prev + 1);
+            }
+          } catch {}
+        };
+        ws.onclose = () => { reconnectTimer = setTimeout(connect, 5000); };
+        ws.onerror = () => { ws.close(); };
+      } catch {}
+    };
+    connect();
+    // Ping to keep alive
+    const pingInterval = setInterval(() => { if (ws?.readyState === 1) ws.send('ping'); }, 30000);
+    return () => {
+      clearTimeout(reconnectTimer);
+      clearInterval(pingInterval);
+      if (ws) ws.close();
+    };
+  }, []);
 
   const NAV_ITEMS = [
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
@@ -51,6 +89,8 @@ export default function Layout({ children }) {
     { path: '/scouting', label: t('nav.scouting'), icon: Search },
     { path: '/reports', label: t('nav.reports'), icon: FileBarChart },
     { path: '/seasons', label: t('nav.seasons'), icon: Trophy },
+    { path: '/compare-players', label: t('nav.comparePlayers'), icon: GitCompare },
+    { path: '/ai-insights', label: t('nav.aiInsights'), icon: Brain },
     { path: '/announcements', label: t('nav.announcements'), icon: Megaphone },
     { path: '/notifications', label: t('common.notifications'), icon: Bell, badge: unreadCount },
     { path: '/parent-portal', label: t('nav.parentPortal'), icon: Eye },
@@ -103,8 +143,13 @@ export default function Layout({ children }) {
           })}
         </nav>
 
-        {/* Language Switcher */}
+        {/* Theme Toggle + Language Switcher */}
         <div className="px-4 py-3 border-t border-zinc-800">
+          <button onClick={toggleTheme} data-testid="theme-toggle"
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors mb-1">
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            <span>{theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}</span>
+          </button>
           <div className="relative">
             <button onClick={() => setLangOpen(!langOpen)} data-testid="language-switcher"
               className="w-full flex items-center gap-2 px-3 py-2 text-xs text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors">

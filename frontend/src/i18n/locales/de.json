@@ -40,7 +40,9 @@
     "send": "Senden",
     "markAsRead": "Als gelesen markieren",
     "notifications": "Benachrichtigungen",
-    "noNotifications": "Keine Benachrichtigungen"
+    "noNotifications": "Keine Benachrichtigungen",
+    "lightMode": "Heller Modus",
+    "darkMode": "Dunkler Modus"
   },
   "nav": {
     "dashboard": "Übersicht",
@@ -56,7 +58,9 @@
     "settings": "Einstellungen",
     "signOut": "Abmelden",
     "seasons": "Saisons",
-    "formations": "Formationen"
+    "formations": "Formationen",
+    "comparePlayers": "Vergleichen",
+    "aiInsights": "KI Insights"
   },
   "landing": {
     "subtitle": "Jugendfußball-Akademie Plattform",
@@ -453,5 +457,47 @@
     "availablePlayers": "Verfügbare Spieler",
     "allAssigned": "Alle Spieler zugewiesen",
     "dragToMove": "Zum Verschieben ziehen"
+  },
+  "compare": {
+    "title": "Spielervergleich",
+    "subtitle": "Vergleiche zwei Spieler nebeneinander",
+    "selectPlayer": "Spieler auswählen",
+    "player1": "Spieler 1",
+    "player2": "Spieler 2",
+    "stats": "Statistiken",
+    "radar": "Radardiagramm",
+    "matchStats": "Spielstatistiken",
+    "noPlayers": "Wähle zwei Spieler zum Vergleichen",
+    "goals": "Tore",
+    "assists": "Vorlagen",
+    "matchesPlayed": "Spiele",
+    "avgRating": "Ø Bewertung",
+    "yellowCards": "Gelbe Karten",
+    "minutesPlayed": "Minuten",
+    "attendance": "Anwesenheit",
+    "speed": "Geschwindigkeit",
+    "stamina": "Ausdauer",
+    "technique": "Technik",
+    "passing": "Passspiel",
+    "shooting": "Schuss",
+    "dribbling": "Dribbling",
+    "strength": "Stärke",
+    "agility": "Agilität",
+    "better": "Besser",
+    "equal": "Gleich",
+    "overall": "Gesamtwertung"
+  },
+  "aiInsights": {
+    "title": "KI-Leistungsanalyse",
+    "subtitle": "KI-gestützte Analyse Ihrer Akademiedaten",
+    "generating": "Insights werden generiert...",
+    "regenerate": "Neu generieren",
+    "lastGenerated": "Zuletzt generiert",
+    "noInsights": "Klicken Sie auf Generieren für eine KI-Analyse",
+    "generate": "Insights Generieren",
+    "overview": "Überblick",
+    "playerInsights": "Spieler-Insights",
+    "teamInsights": "Team-Insights",
+    "recommendations": "Empfehlungen"
   }
 }

@@ -40,7 +40,9 @@
     "send": "Invia",
     "markAsRead": "Segna come letto",
     "notifications": "Notifiche",
-    "noNotifications": "Nessuna notifica"
+    "noNotifications": "Nessuna notifica",
+    "lightMode": "Modalità Chiara",
+    "darkMode": "Modalità Scura"
   },
   "nav": {
     "dashboard": "Pannello",
@@ -56,7 +58,9 @@
     "settings": "Impostazioni",
     "signOut": "Esci",
     "seasons": "Stagioni",
-    "formations": "Formazioni"
+    "formations": "Formazioni",
+    "comparePlayers": "Confronta",
+    "aiInsights": "IA Insights"
   },
   "landing": {
     "subtitle": "Piattaforma per Accademie di Calcio Giovanile",
@@ -453,5 +457,47 @@
     "availablePlayers": "Giocatori Disponibili",
     "allAssigned": "Tutti i giocatori assegnati",
     "dragToMove": "Trascina per riposizionare"
+  },
+  "compare": {
+    "title": "Confronto Giocatori",
+    "subtitle": "Confronta due giocatori fianco a fianco",
+    "selectPlayer": "Seleziona Giocatore",
+    "player1": "Giocatore 1",
+    "player2": "Giocatore 2",
+    "stats": "Statistiche",
+    "radar": "Grafico Radar",
+    "matchStats": "Stats Partite",
+    "noPlayers": "Seleziona due giocatori da confrontare",
+    "goals": "Gol",
+    "assists": "Assist",
+    "matchesPlayed": "Partite",
+    "avgRating": "Voto Medio",
+    "yellowCards": "Cartellini Gialli",
+    "minutesPlayed": "Minuti",
+    "attendance": "Presenza",
+    "speed": "Velocità",
+    "stamina": "Resistenza",
+    "technique": "Tecnica",
+    "passing": "Passaggio",
+    "shooting": "Tiro",
+    "dribbling": "Dribbling",
+    "strength": "Forza",
+    "agility": "Agilità",
+    "better": "Migliore",
+    "equal": "Pari",
+    "overall": "Punteggio Totale"
+  },
+  "aiInsights": {
+    "title": "Analisi IA delle Prestazioni",
+    "subtitle": "Analisi dei dati dell'accademia alimentata dall'IA",
+    "generating": "Generazione in corso...",
+    "regenerate": "Rigenera",
+    "lastGenerated": "Ultima generazione",
+    "noInsights": "Clicca su genera per ottenere un'analisi IA",
+    "generate": "Genera Insights",
+    "overview": "Panoramica",
+    "playerInsights": "Insights Giocatori",
+    "teamInsights": "Insights Squadre",
+    "recommendations": "Raccomandazioni"
   }
 }

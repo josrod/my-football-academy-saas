@@ -40,7 +40,9 @@
     "send": "إرسال",
     "markAsRead": "تحديد كمقروء",
     "notifications": "الإشعارات",
-    "noNotifications": "لا توجد إشعارات"
+    "noNotifications": "لا توجد إشعارات",
+    "lightMode": "الوضع الفاتح",
+    "darkMode": "الوضع الداكن"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -56,7 +58,9 @@
     "settings": "الإعدادات",
     "signOut": "تسجيل الخروج",
     "seasons": "المواسم",
-    "formations": "التشكيلات"
+    "formations": "التشكيلات",
+    "comparePlayers": "مقارنة",
+    "aiInsights": "رؤى الذكاء"
   },
   "landing": {
     "subtitle": "منصة أكاديميات كرة القدم للناشئين",
@@ -453,5 +457,47 @@
     "availablePlayers": "اللاعبون المتاحون",
     "allAssigned": "تم تعيين جميع اللاعبين",
     "dragToMove": "اسحب لإعادة التموضع"
+  },
+  "compare": {
+    "title": "مقارنة اللاعبين",
+    "subtitle": "قارن بين لاعبين جنباً إلى جنب",
+    "selectPlayer": "اختر لاعب",
+    "player1": "اللاعب 1",
+    "player2": "اللاعب 2",
+    "stats": "الإحصائيات",
+    "radar": "مخطط رادار",
+    "matchStats": "إحصائيات المباريات",
+    "noPlayers": "اختر لاعبين للمقارنة",
+    "goals": "أهداف",
+    "assists": "تمريرات حاسمة",
+    "matchesPlayed": "مباريات",
+    "avgRating": "متوسط التقييم",
+    "yellowCards": "بطاقات صفراء",
+    "minutesPlayed": "دقائق",
+    "attendance": "حضور",
+    "speed": "سرعة",
+    "stamina": "تحمل",
+    "technique": "تقنية",
+    "passing": "تمرير",
+    "shooting": "تسديد",
+    "dribbling": "مراوغة",
+    "strength": "قوة",
+    "agility": "رشاقة",
+    "better": "أفضل",
+    "equal": "متساوي",
+    "overall": "النتيجة الإجمالية"
+  },
+  "aiInsights": {
+    "title": "رؤى أداء الذكاء الاصطناعي",
+    "subtitle": "تحليل مدعوم بالذكاء الاصطناعي",
+    "generating": "جاري التوليد...",
+    "regenerate": "إعادة التوليد",
+    "lastGenerated": "آخر توليد",
+    "noInsights": "انقر على توليد للحصول على تحليل",
+    "generate": "توليد الرؤى",
+    "overview": "نظرة عامة",
+    "playerInsights": "رؤى اللاعبين",
+    "teamInsights": "رؤى الفرق",
+    "recommendations": "توصيات"
   }
 }

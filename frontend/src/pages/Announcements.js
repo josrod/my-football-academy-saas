@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
 import { useAuth } from '../contexts/AuthContext';
-import { Megaphone, Plus, Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import { Megaphone, Plus, Loader2, Trash2, AlertTriangle, Languages } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Announcements() {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [translating, setTranslating] = useState(null);
   const [form, setForm] = useState({ title: '', content: '', priority: 'normal', target: 'all' });
 
   useEffect(() => {
@@ -30,6 +31,23 @@ export default function Announcements() {
   const handleDelete = async (id) => {
     await api.delete(`/api/announcements/${id}`);
     setAnnouncements(announcements.filter(a => a.id !== id));
+  };
+
+  const handleTranslate = async (ann) => {
+    setTranslating(ann.id);
+    try {
+      const res = await api.post(`/api/announcements/${ann.id}/translate`, {});
+      setAnnouncements(prev => prev.map(a => a.id === ann.id ? { ...a, translations: res.translations } : a));
+    } catch (e) { console.error(e); }
+    setTranslating(null);
+  };
+
+  const getLocalizedContent = (ann) => {
+    const lang = i18n.language;
+    if (ann.translations && ann.translations[lang]) {
+      return { title: ann.translations[lang].title, content: ann.translations[lang].content };
+    }
+    return { title: ann.title, content: ann.content };
   };
 
   const isAdmin = user?.role === 'admin' || user?.role === 'coach';
@@ -85,14 +103,17 @@ export default function Announcements() {
         <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-primary" /></div>
       ) : (
         <div className="space-y-4" data-testid="announcements-list">
-          {announcements.map((a, i) => (
+          {announcements.map((a, i) => {
+            const localized = getLocalizedContent(a);
+            const hasTranslations = !!a.translations;
+            return (
             <motion.div key={a.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
               className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 hover:border-zinc-700 transition-all" data-testid={`announcement-${i}`}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <Megaphone size={18} className={a.priority === 'high' ? 'text-red-400' : a.priority === 'low' ? 'text-zinc-500' : 'text-primary'} />
                   <div>
-                    <h3 className="text-base font-semibold text-white">{a.title}</h3>
+                    <h3 className="text-base font-semibold text-white">{localized.title}</h3>
                     <p className="text-xs text-zinc-500 mt-0.5">{a.author_name} ({a.author_role}) &middot; {new Date(a.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
@@ -101,6 +122,19 @@ export default function Announcements() {
                     {a.priority}
                   </span>
                   <span className="text-xs bg-zinc-800 text-zinc-400 px-2.5 py-1 rounded-md">{a.target}</span>
+                  {isAdmin && !hasTranslations && (
+                    <button onClick={() => handleTranslate(a)} disabled={translating === a.id}
+                      className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 px-2 py-1 rounded-md transition-colors disabled:opacity-50"
+                      data-testid={`translate-announcement-${i}`}>
+                      {translating === a.id ? <Loader2 size={12} className="animate-spin" /> : <Languages size={12} />}
+                      {translating === a.id ? 'AI...' : 'Translate'}
+                    </button>
+                  )}
+                  {hasTranslations && (
+                    <span className="text-[10px] text-green-400 bg-green-500/10 px-2 py-1 rounded-md" data-testid={`translated-badge-${i}`}>
+                      7 langs
+                    </span>
+                  )}
                   {isAdmin && (
                     <button onClick={() => handleDelete(a.id)} className="text-zinc-500 hover:text-red-400 transition-colors" data-testid={`delete-announcement-${i}`}>
                       <Trash2 size={14} />
@@ -108,9 +142,10 @@ export default function Announcements() {
                   )}
                 </div>
               </div>
-              <p className="text-sm text-zinc-400 leading-relaxed pl-[30px]">{a.content}</p>
+              <p className="text-sm text-zinc-400 leading-relaxed pl-[30px]">{localized.content}</p>
             </motion.div>
-          ))}
+            );
+          })}
           {announcements.length === 0 && <p className="text-center py-10 text-sm text-zinc-500">{t('announcements.noAnnouncements')}</p>}
         </div>
       )}
