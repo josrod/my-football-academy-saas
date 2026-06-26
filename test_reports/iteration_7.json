@@ -1,0 +1,107 @@
+{
+  "summary": "Comprehensive testing of Advanced Match Statistics feature (Estadísticas avanzadas de partidos). Backend 100% (23/23 tests passed). Frontend 100% - all features working correctly including match report page, tabs, MOTM card, team stats bars, timeline, player ratings, WIN/DRAW/LOSS badges, formation display, and i18n translations.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: GET /api/matches returns 200 with list of matches",
+    "Backend: GET /api/matches returns matches with completed/scheduled statuses",
+    "Backend: GET /api/matches?status=completed filters correctly",
+    "Backend: GET /api/matches/{match_id} returns 200 for completed match",
+    "Backend: Completed match has team_stats with possession, shots, shots_on_target, corners, fouls, pass_accuracy, saves",
+    "Backend: Completed match has events array with goals, cards, substitutions",
+    "Backend: Events are ordered by minute ascending",
+    "Backend: Completed match has player_stats with ratings, goals, assists",
+    "Backend: Player stats are sorted by rating descending",
+    "Backend: Completed match has MOTM (Man of the Match) with rating >= 7",
+    "Backend: Completed match has summary with total_goals, total_assists, total_yellows, avg_rating, players_used",
+    "Backend: Completed match has formation field",
+    "Backend: Completed match has team info with name",
+    "Backend: GET /api/matches/{match_id} returns 200 for scheduled match",
+    "Backend: Scheduled match has null home_score and away_score",
+    "Backend: Scheduled match has empty player_stats",
+    "Backend: Scheduled match has null MOTM",
+    "Backend: POST /api/matches/{match_id}/events adds goal event",
+    "Backend: POST /api/matches/{match_id}/events adds yellow_card event",
+    "Backend: POST /api/matches/{match_id}/events adds substitution event",
+    "Backend: POST /api/matches/{invalid_id}/events returns 404",
+    "Backend: GET /api/matches/{invalid_id} returns 404",
+    "Backend: GET /api/matches/{match_id} without auth returns 401",
+    "Frontend: Match Report page loads correctly for completed matches",
+    "Frontend: Match header shows LEAGUE/CUP/FRIENDLY badge and formation (e.g., 3-5-2)",
+    "Frontend: Match header shows score with WIN/DRAW/LOSS badge",
+    "Frontend: MOTM card displays player name, position, jersey number, rating, goals, assists, minutes",
+    "Frontend: Team Stats tab shows comparison bars for all stats (possession, shots, etc.)",
+    "Frontend: Timeline tab shows events ordered by minute with icons (goal, yellow_card, substitution)",
+    "Frontend: Player Ratings tab shows table with #, Player, Pos, Mins, Goals, Assists, Cards, Rating",
+    "Frontend: Player Ratings tab highlights MOTM player",
+    "Frontend: Scheduled matches show 'vs' instead of scores",
+    "Frontend: Scheduled matches do NOT show tabs (Team Stats, Timeline, Player Ratings)",
+    "Frontend: Scheduled matches do NOT show MOTM card",
+    "Frontend: i18n translations work for matchAdvanced.* keys in Spanish",
+    "Frontend: Spanish translations: ESTADÍSTICAS DEL EQUIPO, CRONOLOGÍA, PUNTUACIONES DE JUGADORES, HOMBRE DEL PARTIDO, VICTORIA"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_match_advanced.py",
+    "/app/test_reports/pytest/pytest_match_advanced.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Code quality is excellent - proper data-testid attributes on all interactive elements (match-report-page, match-header, motm-card, match-tabs, match-tab-stats, match-tab-timeline, match-tab-players, team-stats-section, timeline-section, player-stats-section)",
+    "Backend correctly enriches match data with player_stats, events, summary, and MOTM",
+    "MOTM logic correctly selects highest rated player with rating >= 7",
+    "Events are properly sorted by minute ascending in the API",
+    "Player stats are properly sorted by rating descending",
+    "StatBar component uses framer-motion for smooth animated comparison bars",
+    "EventIcon component correctly renders different icons for goal, yellow_card, red_card, substitution",
+    "i18n translations are complete for all matchAdvanced.* keys in both en.json and es.json"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_match_advanced.py"
+  ],
+  "success_rate": {
+    "backend": "100% (23/23)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "Using existing seed data: 3 completed matches (City Youth 5-2, Real Stars 5-2, FC United 0-0) and 3 scheduled matches (Sporting Academy, Dynamo Kids, Athletic Junior)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Advanced Match Statistics feature fully functional. Backend enriches match data with team_stats (embedded in match doc), events (from match_events collection), player_stats (from match_player_stats collection with player info), summary (aggregated stats), and motm (highest rated player >= 7). Frontend MatchReport.js renders 3 tabs for completed matches (Team Stats, Timeline, Player Ratings) with animated StatBar components. Scheduled matches show 'vs' instead of scores and no tabs/MOTM. Translation keys in matchAdvanced.* namespace are correctly used.",
+  "features_verified": {
+    "backend_match_api": {
+      "endpoints": [
+        "GET /api/matches - list matches with status filter",
+        "GET /api/matches/{match_id} - enriched match data",
+        "POST /api/matches/{match_id}/events - add match events"
+      ],
+      "enriched_fields": ["team_stats", "events", "player_stats", "summary", "motm", "team", "formation"],
+      "team_stats_fields": ["possession", "shots", "shots_on_target", "corners", "fouls", "pass_accuracy", "saves", "opp_*"],
+      "event_types": ["goal", "yellow_card", "red_card", "substitution"],
+      "summary_fields": ["total_goals", "total_assists", "total_yellows", "total_reds", "avg_rating", "players_used"],
+      "motm_logic": "Highest rated player with rating >= 7"
+    },
+    "frontend_match_report": {
+      "components": ["MatchReport.js", "StatBar", "EventIcon"],
+      "tabs": ["Team Stats", "Timeline", "Player Ratings"],
+      "badges": ["WIN (green)", "DRAW (gray)", "LOSS (red)"],
+      "motm_card": "Shows player name, position, jersey #, rating, goals, assists, minutes",
+      "scheduled_match_behavior": "Shows 'vs' instead of scores, no tabs, no MOTM"
+    },
+    "i18n_translations": {
+      "namespace": "matchAdvanced.*",
+      "languages_tested": ["en", "es"],
+      "key_examples": ["teamStats", "timeline", "playerRatings", "manOfTheMatch", "win", "draw", "loss", "possession", "shots", "goal", "yellowCard"]
+    }
+  },
+  "test_match_ids": {
+    "completed_win": "69adc5a32e1800e222f9b7a7 (City Youth 5-2)",
+    "completed_draw": "69adc5a32e1800e222f9b78f (FC United 0-0)",
+    "scheduled": "69adc5a32e1800e222f9b7b5 (Sporting Academy)"
+  }
+}

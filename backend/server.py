@@ -203,6 +203,8 @@ class MatchCreate(BaseModel):
     away_score: Optional[int] = None
     status: str = "scheduled"
     notes: Optional[str] = None
+    formation: Optional[str] = None
+    team_stats: Optional[dict] = None
 
 class CalendarEventCreate(BaseModel):
     title: str
@@ -727,7 +729,12 @@ async def get_match(match_id: str, request: Request):
         if player:
             s_data["player_name"] = f"{player['first_name']} {player['last_name']}"
             s_data["position"] = player.get("position", "")
+            s_data["jersey_number"] = player.get("jersey_number")
+            s_data["photo_url"] = player.get("photo_url", "")
         enriched_stats.append(s_data)
+    
+    # Sort by rating desc
+    enriched_stats.sort(key=lambda x: -(x.get("rating") or 0))
     
     team = None
     if match.get("team_id"):
@@ -735,7 +742,57 @@ async def get_match(match_id: str, request: Request):
         if team_doc:
             team = str_id(team_doc)
     
-    return {**str_id(match), "player_stats": enriched_stats, "team": team}
+    # Match events
+    events = await db.match_events.find({"match_id": match_id}).sort("minute", 1).to_list(100)
+    
+    # Compute aggregated player stats
+    total_goals = sum(s.get("goals", 0) for s in enriched_stats)
+    total_assists = sum(s.get("assists", 0) for s in enriched_stats)
+    total_yellows = sum(s.get("yellow_cards", 0) for s in enriched_stats)
+    total_reds = sum(s.get("red_cards", 0) for s in enriched_stats)
+    avg_rating = round(sum(s.get("rating", 0) for s in enriched_stats) / max(len(enriched_stats), 1), 1)
+    
+    # Man of the Match
+    motm = enriched_stats[0] if enriched_stats and enriched_stats[0].get("rating", 0) >= 7 else None
+    
+    result = {
+        **str_id(match),
+        "player_stats": enriched_stats,
+        "team": team,
+        "events": str_ids(events),
+        "summary": {
+            "total_goals": total_goals,
+            "total_assists": total_assists,
+            "total_yellows": total_yellows,
+            "total_reds": total_reds,
+            "avg_rating": avg_rating,
+            "players_used": len(enriched_stats)
+        },
+        "motm": motm
+    }
+    return result
+
+@app.post("/api/matches/{match_id}/events")
+async def add_match_event(match_id: str, request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    match = await db.matches.find_one({"_id": ObjectId(match_id), "club_id": user["club_id"]})
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    doc = {
+        "match_id": match_id,
+        "club_id": user["club_id"],
+        "type": body.get("type", "goal"),
+        "minute": body.get("minute", 0),
+        "player_id": body.get("player_id", ""),
+        "player_name": body.get("player_name", ""),
+        "detail": body.get("detail", ""),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.match_events.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
 
 @app.post("/api/matches")
 async def create_match(data: MatchCreate, request: Request):
@@ -1541,13 +1598,37 @@ async def seed_data():
     
     # Create 6 matches
     opponents = ["FC United", "Real Stars", "City Youth", "Athletic Junior", "Dynamo Kids", "Sporting Academy"]
+    formations = ["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"]
     for i in range(6):
         team_idx = i % 4
         match_date = (now + timedelta(days=i * 3 - 5)).strftime("%Y-%m-%d")
         is_past = i < 3
-        home_score = random.randint(0, 5) if is_past else None
-        away_score = random.randint(0, 4) if is_past else None
+        home_score = random.randint(1, 5) if is_past else None
+        away_score = random.randint(0, 3) if is_past else None
         
+        match_team_stats = None
+        formation = None
+        if is_past:
+            formation = random.choice(formations)
+            match_team_stats = {
+                "possession": random.randint(42, 65),
+                "shots": random.randint(8, 20),
+                "shots_on_target": random.randint(3, 10),
+                "corners": random.randint(2, 10),
+                "fouls": random.randint(5, 18),
+                "offsides": random.randint(0, 5),
+                "saves": random.randint(1, 7),
+                "passes": random.randint(200, 500),
+                "pass_accuracy": random.randint(70, 92),
+                "opp_possession": 0, "opp_shots": random.randint(5, 15),
+                "opp_shots_on_target": random.randint(1, 7),
+                "opp_corners": random.randint(1, 8),
+                "opp_fouls": random.randint(4, 15),
+                "opp_pass_accuracy": random.randint(62, 88),
+                "opp_saves": random.randint(1, 6),
+            }
+            match_team_stats["opp_possession"] = 100 - match_team_stats["possession"]
+
         mr = await db.matches.insert_one({
             "team_id": team_ids[team_idx],
             "opponent": opponents[i],
@@ -1558,7 +1639,9 @@ async def seed_data():
             "home_score": home_score,
             "away_score": away_score,
             "status": "completed" if is_past else "scheduled",
-            "notes": "Good performance" if is_past else "",
+            "notes": "Good performance from the squad. Controlled the game well." if is_past else "",
+            "formation": formation,
+            "team_stats": match_team_stats,
             "club_id": club_id,
             "created_at": now.isoformat()
         })
@@ -1566,18 +1649,86 @@ async def seed_data():
         if is_past:
             match_id = str(mr.inserted_id)
             team_players = [player_ids[j] for j in range(60) if j % 4 == team_idx][:11]
+            
+            # Distribute goals among players
+            goals_remaining = home_score
+            goal_scorers = []
             for pid in team_players:
+                pg = 0
+                if goals_remaining > 0 and random.random() > 0.5:
+                    pg = min(random.randint(1, 2), goals_remaining)
+                    goals_remaining -= pg
+                pa = random.randint(0, 1) if random.random() > 0.6 else 0
+                yc = 1 if random.random() < 0.15 else 0
+                mins = random.randint(60, 90) if random.random() > 0.3 else random.randint(45, 70)
+                rating = round(random.uniform(5.5, 9.2), 1)
+                
                 await db.match_player_stats.insert_one({
-                    "match_id": match_id,
-                    "player_id": pid,
-                    "minutes_played": random.randint(45, 90),
-                    "goals": random.randint(0, 2),
-                    "assists": random.randint(0, 2),
-                    "yellow_cards": random.randint(0, 1),
-                    "red_cards": 0,
-                    "rating": round(random.uniform(5, 9), 1),
-                    "club_id": club_id,
-                    "date": match_date,
+                    "match_id": match_id, "player_id": pid,
+                    "minutes_played": mins, "goals": pg, "assists": pa,
+                    "yellow_cards": yc, "red_cards": 0, "rating": rating,
+                    "club_id": club_id, "date": match_date,
+                    "created_at": now.isoformat()
+                })
+                if pg > 0:
+                    goal_scorers.append((pid, pg, mins))
+            
+            # Assign remaining goals
+            if goals_remaining > 0 and team_players:
+                lucky = random.choice(team_players)
+                await db.match_player_stats.update_one(
+                    {"match_id": match_id, "player_id": lucky},
+                    {"$inc": {"goals": goals_remaining}}
+                )
+                player_doc = await db.players.find_one({"_id": ObjectId(lucky)})
+                pname = f"{player_doc['first_name']} {player_doc['last_name']}" if player_doc else "Unknown"
+                goal_scorers.append((lucky, goals_remaining, random.randint(60, 85)))
+            
+            # Create match events
+            event_minutes_used = set()
+            # Goal events
+            all_stats = await db.match_player_stats.find({"match_id": match_id}).to_list(20)
+            for s in all_stats:
+                if s.get("goals", 0) > 0:
+                    player_doc = await db.players.find_one({"_id": ObjectId(s["player_id"])})
+                    pname = f"{player_doc['first_name']} {player_doc['last_name']}" if player_doc else ""
+                    for g in range(s["goals"]):
+                        minute = random.randint(1, 90)
+                        while minute in event_minutes_used:
+                            minute = random.randint(1, 90)
+                        event_minutes_used.add(minute)
+                        await db.match_events.insert_one({
+                            "match_id": match_id, "club_id": club_id,
+                            "type": "goal", "minute": minute,
+                            "player_id": s["player_id"], "player_name": pname,
+                            "detail": random.choice(["Great finish", "Header", "Free kick", "Penalty", "Long range shot", "Tap in"]),
+                            "created_at": now.isoformat()
+                        })
+                if s.get("yellow_cards", 0) > 0:
+                    player_doc = await db.players.find_one({"_id": ObjectId(s["player_id"])})
+                    pname = f"{player_doc['first_name']} {player_doc['last_name']}" if player_doc else ""
+                    minute = random.randint(15, 88)
+                    while minute in event_minutes_used:
+                        minute = random.randint(15, 88)
+                    event_minutes_used.add(minute)
+                    await db.match_events.insert_one({
+                        "match_id": match_id, "club_id": club_id,
+                        "type": "yellow_card", "minute": minute,
+                        "player_id": s["player_id"], "player_name": pname,
+                        "detail": random.choice(["Foul", "Tactical foul", "Dissent", "Time wasting"]),
+                        "created_at": now.isoformat()
+                    })
+            # Substitution events
+            for sub_idx in range(random.randint(1, 3)):
+                minute = random.randint(55, 85)
+                while minute in event_minutes_used:
+                    minute = random.randint(55, 85)
+                event_minutes_used.add(minute)
+                await db.match_events.insert_one({
+                    "match_id": match_id, "club_id": club_id,
+                    "type": "substitution", "minute": minute,
+                    "player_id": "", "player_name": "",
+                    "detail": "Tactical substitution",
                     "created_at": now.isoformat()
                 })
     
