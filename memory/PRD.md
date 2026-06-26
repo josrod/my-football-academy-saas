@@ -14,37 +14,33 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 
 ## What's Been Implemented
 
-### Backend (FastAPI) - 55+ endpoints
+### Backend (FastAPI) - 57+ endpoints
 - JWT auth, CRUD for all modules, dashboard aggregation
-- Season management with CRUD + stats aggregation
-- Season Leaderboard - Top scorers, top assists, best attendance, top rated
+- Season management with CRUD + stats aggregation + leaderboard
 - File upload via Emergent Object Storage
 - User language preference, mock parent notification system
-- Advanced Match Statistics: enriched match data with team_stats, events, player_stats, MOTM, summary, formation
-- Match events API (POST /api/matches/{match_id}/events)
-- **Tactical Heatmap**: auto-generated 24-zone (4x6 grid) heatmap per player based on position type
-- **Formation CRUD**: presets (5 formations), save/load/update/delete per team
-- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches with events/stats, 5 announcements, 15 evaluations, 3 seasons)
+- Advanced Match Statistics: team_stats, events, player_stats, MOTM, summary, formation
+- Tactical Heatmap: 24-zone grid per player based on position type
+- Formation CRUD: 5 presets, save/load/update/delete per team
+- **Formation Comparison**: planned vs actual formation with player performance overlay
+- Seed data (1 club, 4 teams, 60 players, 10 training, 6 matches with full data, 3 seasons)
 
-### Frontend (React) - 25+ screens
-- Full dashboard, player management (with photo upload), team management
-- Training with attendance, match center, calendar, scouting with radar charts
-- Reports with CSV/PDF export
-- Season Management with leaderboard (podium-style top 3 + ranked list, 4 categories)
-- Advanced Match Report: 4-tab view (Team Stats, Timeline, **Heatmap**, Player Ratings), MOTM card, formation display
-- **Tactical Heatmap Tab**: SVG football pitch with radial gradient heat zones, player selector for individual/combined views
-- **Formation Analysis Page** (/formations): drag-and-drop formation editor, 5 preset formations, auto-assign players, save/load/delete formations
-- **FootballPitch** reusable SVG component with field markings
-- Notifications UI, announcements, parent portal, admin, settings (with logo upload)
+### Frontend (React) - 26+ screens
+- Full dashboard, player/team management, training with attendance
+- Match center with 5-tab report (Stats, Timeline, Heatmap, Player Ratings, **Compare**)
+- Calendar, scouting with radar charts, reports with CSV/PDF export
+- Season Management with podium leaderboard
+- **Formation Analysis** (/formations): drag-and-drop editor with auto-assign
+- **Formation Comparison**: side-by-side pitches (planned vs actual), rating color-coding, summary table
+- FootballPitch reusable SVG component
+- Notifications, announcements, parent portal, admin, settings
 - All 7 languages translated, RTL for Arabic
 
-### Testing Status (8 iterations, all passing)
+### Testing Status (9 iterations, all passing)
+- Iteration 9: Backend 100% (12/12), Frontend 100% — Formation Comparison
 - Iteration 8: Backend 100% (19/19), Frontend 100% — Heatmap + Formations
 - Iteration 7: Backend 100% (23/23), Frontend 100% — Advanced Match Stats
-- Iteration 6: Backend 100% (14/14), Frontend 100% — Leaderboard
-- Iteration 5: Backend 100% (12/12), Frontend 100% — Seasons
-- Iteration 4: Backend 100% (16/16) — Notifications/Upload/Export
-- Iteration 3: Backend 100% (18/18) — i18n
+- Iteration 6-3: All passing — Leaderboard, Seasons, i18n, Notifications, Export
 
 ## Demo Credentials
 - Admin: admin@academy.com / admin123
@@ -55,12 +51,12 @@ Build a production-ready MVP SaaS application called "Academy SaaS" for managing
 
 ### All Done
 - [x] Core modules (Auth, Dashboard, Players, Teams, Training, Matches, Calendar, Scouting, Reports, Announcements, Parent Portal, Admin, Settings)
-- [x] i18n (7 languages + RTL)
-- [x] Notifications UI, File Upload, CSV/PDF Export
+- [x] i18n (7 languages + RTL), Notifications UI, File Upload, CSV/PDF Export
 - [x] Season Management with Leaderboard
 - [x] Advanced match statistics & formations
-- [x] Tactical Heatmap (match report 4th tab)
+- [x] Tactical Heatmap (match report tab)
 - [x] Formation Analysis with drag & drop editor
+- [x] Formation Comparison (planned vs actual with metrics)
 
 ### P1 (Important)
 - [ ] Auto-translation for announcements using LLM
