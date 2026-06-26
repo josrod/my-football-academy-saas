@@ -424,7 +424,20 @@
     "allPlayers": "جميع اللاعبين (مجتمعين)",
     "highActivity": "نشاط عالي",
     "mediumActivity": "نشاط متوسط",
-    "lowActivity": "نشاط منخفض"
+    "lowActivity": "نشاط منخفض",
+    "compareFormations": "مقارنة",
+    "planned": "المخططة",
+    "actual": "الفعلية",
+    "savedFormation": "محفوظة",
+    "presetFormation": "مسبقة",
+    "matchData": "بيانات المباراة",
+    "playerPerformanceSummary": "ملخص أداء اللاعبين",
+    "plannedPos": "المخطط",
+    "actualPos": "الفعلي",
+    "ratingExcellent": "ممتاز (+8)",
+    "ratingAverage": "متوسط (6-7)",
+    "ratingPoor": "أقل من المتوسط (>6)",
+    "goalsScored": "أهداف مسجلة"
   },
   "formations": {
     "title": "تحليل التشكيلات",

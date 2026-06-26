@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { ArrowLeft, Loader2, MapPin, Clock, Star, Flame, AlertTriangle, ArrowRightLeft, BarChart3, Users, Trophy, Crosshair } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin, Clock, Star, Flame, AlertTriangle, ArrowRightLeft, BarChart3, Users, Trophy, Crosshair, GitCompare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import FootballPitch, { pitchToSvg, PITCH_WIDTH, PITCH_RATIO } from '../components/FootballPitch';
 
@@ -45,10 +45,21 @@ export default function MatchReport() {
   const [tab, setTab] = useState('stats');
   const [heatmapPlayer, setHeatmapPlayer] = useState(null);
   const pitchRef = useRef(null);
+  const pitchRefPlanned = useRef(null);
+  const pitchRefActual = useRef(null);
+  const [comparison, setComparison] = useState(null);
+  const [compLoading, setCompLoading] = useState(false);
 
   useEffect(() => {
     api.get(`/api/matches/${id}`).then(setMatch).catch(console.error).finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (tab === 'compare' && !comparison && !compLoading) {
+      setCompLoading(true);
+      api.get(`/api/matches/${id}/formation-comparison`).then(setComparison).catch(console.error).finally(() => setCompLoading(false));
+    }
+  }, [tab, id, comparison, compLoading]);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-primary" /></div>;
   if (!match) return <p className="text-center py-20 text-zinc-500">{t('matches.matchNotFound')}</p>;
@@ -66,6 +77,7 @@ export default function MatchReport() {
     { key: 'timeline', label: t('matchAdvanced.timeline'), icon: Clock },
     { key: 'heatmap', label: t('matchAdvanced.heatmap'), icon: Crosshair },
     { key: 'players', label: t('matchAdvanced.playerRatings'), icon: Users },
+    { key: 'compare', label: t('matchAdvanced.compareFormations'), icon: GitCompare },
   ] : [];
 
   return (
@@ -323,6 +335,160 @@ export default function MatchReport() {
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500/50" /> {t('matchAdvanced.mediumActivity')}</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500/30" /> {t('matchAdvanced.lowActivity')}</span>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Formation Comparison Tab */}
+      {tab === 'compare' && isCompleted && (
+        <div data-testid="formation-comparison-section">
+          {compLoading ? (
+            <div className="flex justify-center py-20"><Loader2 size={28} className="animate-spin text-primary" /></div>
+          ) : comparison?.planned && comparison?.actual ? (
+            <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Planned Formation */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <span className="text-[10px] text-blue-400 uppercase tracking-widest font-semibold">{t('matchAdvanced.planned')}</span>
+                      <h3 className="text-lg font-heading font-bold text-white">{comparison.planned.name}</h3>
+                    </div>
+                    <span className="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md font-mono">
+                      {comparison.planned.source === 'saved' ? t('matchAdvanced.savedFormation') : t('matchAdvanced.presetFormation')}
+                    </span>
+                  </div>
+                  <div className="flex justify-center" data-testid="planned-formation-pitch">
+                    <FootballPitch ref={pitchRefPlanned} width={360}>
+                      {(comparison.planned.positions || []).map((pos, i) => {
+                        const { x, y } = pitchToSvg(pos.x, pos.y, 360);
+                        return (
+                          <g key={i}>
+                            <circle cx={x} cy={y} r={13} fill="#3b82f6" fillOpacity={0.2} stroke="#3b82f6" strokeWidth={1.5} />
+                            <circle cx={x} cy={y} r={7} fill="#3b82f6" />
+                            <text x={x} y={y + 1} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="6" fontWeight="bold"
+                              style={{ pointerEvents: 'none' }}>{pos.jersey_number || ''}</text>
+                            <text x={x} y={y + 20} textAnchor="middle" fill="white" fontSize="7" fontWeight="600"
+                              style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                              {pos.player_name ? pos.player_name.split(' ').pop() : pos.role}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </FootballPitch>
+                  </div>
+                </div>
+
+                {/* Actual Formation */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <span className="text-[10px] text-primary uppercase tracking-widest font-semibold">{t('matchAdvanced.actual')}</span>
+                      <h3 className="text-lg font-heading font-bold text-white">{comparison.actual.formation_type}</h3>
+                    </div>
+                    <span className="text-xs bg-primary/10 text-primary border border-primary/20 px-2.5 py-1 rounded-md font-mono">
+                      {t('matchAdvanced.matchData')}
+                    </span>
+                  </div>
+                  <div className="flex justify-center" data-testid="actual-formation-pitch">
+                    <FootballPitch ref={pitchRefActual} width={360}>
+                      {(comparison.actual.positions || []).map((pos, i) => {
+                        const { x, y } = pitchToSvg(pos.x, pos.y, 360);
+                        const rColor = pos.rating >= 8 ? '#22c55e' : pos.rating >= 7 ? '#22c55e' : pos.rating >= 6 ? '#f59e0b' : '#ef4444';
+                        return (
+                          <g key={i}>
+                            <circle cx={x} cy={y} r={13} fill={rColor} fillOpacity={0.2} stroke={rColor} strokeWidth={1.5} />
+                            <circle cx={x} cy={y} r={7} fill={rColor} />
+                            <text x={x} y={y + 1} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="6" fontWeight="bold"
+                              style={{ pointerEvents: 'none' }}>{pos.jersey_number || ''}</text>
+                            <text x={x} y={y + 20} textAnchor="middle" fill="white" fontSize="7" fontWeight="600"
+                              style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+                              {pos.player_name?.split(' ').pop() || pos.role}
+                            </text>
+                            {/* Rating badge */}
+                            <rect x={x + 8} y={y - 16} width={18} height={12} rx={3} fill={rColor} fillOpacity={0.9} />
+                            <text x={x + 17} y={y - 9} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="7" fontWeight="bold"
+                              style={{ pointerEvents: 'none' }}>{pos.rating}</text>
+                            {/* Goal indicator */}
+                            {pos.goals > 0 && (
+                              <>
+                                <circle cx={x - 12} cy={y - 12} r={7} fill="#22c55e" fillOpacity={0.9} />
+                                <text x={x - 12} y={y - 11} textAnchor="middle" dominantBaseline="central" fill="white" fontSize="7" fontWeight="bold"
+                                  style={{ pointerEvents: 'none' }}>{pos.goals}</text>
+                              </>
+                            )}
+                          </g>
+                        );
+                      })}
+                    </FootballPitch>
+                  </div>
+                </div>
+              </div>
+
+              {/* Player Performance Summary Table */}
+              <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden" data-testid="comparison-summary-table">
+                <div className="px-5 py-3.5 border-b border-zinc-800 bg-zinc-900/80">
+                  <h3 className="text-sm font-semibold text-white uppercase tracking-wider">{t('matchAdvanced.playerPerformanceSummary')}</h3>
+                </div>
+                <table className="w-full">
+                  <thead><tr className="border-b border-zinc-800">
+                    <th className="text-left text-xs text-zinc-500 uppercase px-5 py-3">#</th>
+                    <th className="text-left text-xs text-zinc-500 uppercase px-5 py-3">{t('matchAdvanced.player')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.plannedPos')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.actualPos')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.mins')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.goals')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.assists')}</th>
+                    <th className="text-center text-xs text-zinc-500 uppercase px-3 py-3">{t('matchAdvanced.rating')}</th>
+                  </tr></thead>
+                  <tbody>
+                    {(comparison.actual.positions || []).map((ap, i) => {
+                      const pp = (comparison.planned.positions || [])[i];
+                      const posChanged = pp && pp.role !== ap.role;
+                      return (
+                        <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors" data-testid={`comparison-row-${i}`}>
+                          <td className="px-5 py-2.5 text-xs text-zinc-500 font-mono">{ap.jersey_number || '-'}</td>
+                          <td className="px-5 py-2.5 text-sm text-white font-medium">{ap.player_name}</td>
+                          <td className="px-3 py-2.5 text-center">
+                            <span className="text-[11px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded">{pp?.role || '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5 text-center">
+                            <span className={`text-[11px] px-2 py-0.5 rounded ${posChanged ? 'bg-amber-500/10 text-amber-400' : 'bg-zinc-800 text-zinc-400'}`}>
+                              {ap.role}{posChanged && ' *'}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2.5 text-center text-sm text-zinc-300 font-mono">{ap.minutes_played}'</td>
+                          <td className="px-3 py-2.5 text-center text-sm font-semibold">
+                            {ap.goals > 0 ? <span className="text-primary">{ap.goals}</span> : <span className="text-zinc-600">0</span>}
+                          </td>
+                          <td className="px-3 py-2.5 text-center text-sm">
+                            {ap.assists > 0 ? <span className="text-blue-400">{ap.assists}</span> : <span className="text-zinc-600">0</span>}
+                          </td>
+                          <td className="px-3 py-2.5 text-center">
+                            <span className={`text-sm font-bold px-2.5 py-1 rounded-md ${
+                              ap.rating >= 8 ? 'bg-green-500/15 text-green-400' :
+                              ap.rating >= 7 ? 'bg-primary/15 text-primary' :
+                              ap.rating >= 6 ? 'bg-amber-500/15 text-amber-400' :
+                              'bg-red-500/15 text-red-400'
+                            }`}>{ap.rating}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Legend */}
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-400">
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500" /> {t('matchAdvanced.ratingExcellent')}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-500" /> {t('matchAdvanced.ratingAverage')}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-500" /> {t('matchAdvanced.ratingPoor')}</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-green-500 text-[8px] text-white flex items-center justify-center font-bold">G</span> {t('matchAdvanced.goalsScored')}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-16 text-zinc-500 text-sm">{t('common.noData')}</div>
           )}
         </div>
       )}

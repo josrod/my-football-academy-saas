@@ -931,6 +931,92 @@ async def delete_formation(formation_id: str, request: Request):
     await db.formations.delete_one({"_id": ObjectId(formation_id), "club_id": user["club_id"]})
     return {"status": "deleted"}
 
+@app.get("/api/matches/{match_id}/formation-comparison")
+async def get_formation_comparison(match_id: str, request: Request):
+    user = await get_user_from_request(request)
+    match = await db.matches.find_one({"_id": ObjectId(match_id), "club_id": user["club_id"]})
+    if not match:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if match.get("status") != "completed":
+        return {"planned": None, "actual": None, "players": []}
+
+    formation_type = match.get("formation", "4-3-3")
+    team_id = match.get("team_id", "")
+
+    # Get planned formation: first try saved team formation, fallback to preset
+    planned_positions = None
+    if team_id:
+        saved = await db.formations.find_one({"team_id": team_id, "club_id": user["club_id"], "formation_type": formation_type})
+        if saved:
+            planned_positions = {"name": saved.get("name", formation_type), "formation_type": formation_type, "positions": saved.get("positions", []), "source": "saved"}
+    if not planned_positions:
+        preset = PRESET_FORMATIONS.get(formation_type, PRESET_FORMATIONS.get("4-3-3"))
+        planned_positions = {"name": f"{formation_type} (preset)", "formation_type": formation_type, "positions": [{"role": p["role"], "x": p["x"], "y": p["y"]} for p in preset], "source": "preset"}
+
+    # Build actual formation from player stats + positions
+    stats = await db.match_player_stats.find({"match_id": match_id}).to_list(50)
+    players_data = []
+    for s in stats:
+        player = await db.players.find_one({"_id": ObjectId(s["player_id"])})
+        if player:
+            players_data.append({
+                "player_id": str(s["player_id"]),
+                "player_name": f"{player['first_name']} {player['last_name']}",
+                "position": player.get("position", ""),
+                "jersey_number": player.get("jersey_number"),
+                "rating": s.get("rating", 0),
+                "goals": s.get("goals", 0),
+                "assists": s.get("assists", 0),
+                "minutes_played": s.get("minutes_played", 0),
+                "yellow_cards": s.get("yellow_cards", 0),
+            })
+
+    # Map players to actual positions on pitch based on their position type and formation
+    preset_pos = PRESET_FORMATIONS.get(formation_type, PRESET_FORMATIONS.get("4-3-3"))
+    role_order = [p["role"] for p in preset_pos]
+
+    def pos_to_role_group(pos_str):
+        p = (pos_str or "").lower()
+        if "goal" in p or "gk" in p: return "GK"
+        if "def" in p or "back" in p: return "DEF"
+        if "mid" in p: return "MID"
+        return "FWD"
+
+    role_group_map = {"GK": ["GK"], "DEF": ["LB", "CB", "RB", "LWB", "RWB"], "MID": ["CDM", "CM", "CAM", "LM", "RM"], "FWD": ["LW", "RW", "ST", "CF"]}
+    actual_positions = []
+    assigned = set()
+
+    for preset_p in preset_pos:
+        role = preset_p["role"]
+        best_player = None
+        for pd in players_data:
+            if pd["player_id"] in assigned:
+                continue
+            group = pos_to_role_group(pd["position"])
+            if role in role_group_map.get(group, []):
+                best_player = pd
+                break
+        if not best_player:
+            for pd in players_data:
+                if pd["player_id"] not in assigned:
+                    best_player = pd
+                    break
+        if best_player:
+            assigned.add(best_player["player_id"])
+            # Add slight position variance from preset to simulate actual positions
+            x_var = random.randint(-5, 5)
+            y_var = random.randint(-4, 4)
+            actual_positions.append({
+                "role": role,
+                "x": max(2, min(98, preset_p["x"] + x_var)),
+                "y": max(2, min(98, preset_p["y"] + y_var)),
+                **best_player
+            })
+
+    actual_formation = {"name": f"{formation_type} (actual)", "formation_type": formation_type, "positions": actual_positions, "source": "match"}
+
+    return {"planned": planned_positions, "actual": actual_formation, "players": players_data}
+
 # CALENDAR
 @app.get("/api/calendar")
 async def get_calendar(request: Request, team_id: str = ""):

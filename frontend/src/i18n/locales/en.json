@@ -424,7 +424,20 @@
     "allPlayers": "All Players (combined)",
     "highActivity": "High activity",
     "mediumActivity": "Medium activity",
-    "lowActivity": "Low activity"
+    "lowActivity": "Low activity",
+    "compareFormations": "Compare",
+    "planned": "Planned",
+    "actual": "Actual",
+    "savedFormation": "Saved",
+    "presetFormation": "Preset",
+    "matchData": "Match Data",
+    "playerPerformanceSummary": "Player Performance Summary",
+    "plannedPos": "Planned",
+    "actualPos": "Actual",
+    "ratingExcellent": "Excellent (8+)",
+    "ratingAverage": "Average (6-7)",
+    "ratingPoor": "Below average (<6)",
+    "goalsScored": "Goals scored"
   },
   "formations": {
     "title": "Formation Analysis",

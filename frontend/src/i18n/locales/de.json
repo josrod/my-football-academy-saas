@@ -424,7 +424,20 @@
     "allPlayers": "Alle Spieler (kombiniert)",
     "highActivity": "Hohe Aktivität",
     "mediumActivity": "Mittlere Aktivität",
-    "lowActivity": "Geringe Aktivität"
+    "lowActivity": "Geringe Aktivität",
+    "compareFormations": "Vergleichen",
+    "planned": "Geplant",
+    "actual": "Tatsächlich",
+    "savedFormation": "Gespeichert",
+    "presetFormation": "Voreinstellung",
+    "matchData": "Spieldaten",
+    "playerPerformanceSummary": "Spielerleistungsübersicht",
+    "plannedPos": "Geplant",
+    "actualPos": "Tatsächlich",
+    "ratingExcellent": "Ausgezeichnet (8+)",
+    "ratingAverage": "Durchschnitt (6-7)",
+    "ratingPoor": "Unterdurchschnitt (<6)",
+    "goalsScored": "Tore erzielt"
   },
   "formations": {
     "title": "Formationsanalyse",

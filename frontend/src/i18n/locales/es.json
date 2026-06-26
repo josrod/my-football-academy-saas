@@ -424,7 +424,20 @@
     "allPlayers": "Todos los Jugadores (combinado)",
     "highActivity": "Alta actividad",
     "mediumActivity": "Actividad media",
-    "lowActivity": "Baja actividad"
+    "lowActivity": "Baja actividad",
+    "compareFormations": "Comparar",
+    "planned": "Planificada",
+    "actual": "Real",
+    "savedFormation": "Guardada",
+    "presetFormation": "Predefinida",
+    "matchData": "Datos del Partido",
+    "playerPerformanceSummary": "Resumen de Rendimiento",
+    "plannedPos": "Planificada",
+    "actualPos": "Real",
+    "ratingExcellent": "Excelente (8+)",
+    "ratingAverage": "Promedio (6-7)",
+    "ratingPoor": "Bajo promedio (<6)",
+    "goalsScored": "Goles marcados"
   },
   "formations": {
     "title": "Análisis de Formaciones",
