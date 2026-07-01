@@ -28,7 +28,7 @@ Build a production-ready MVP SaaS application named "Academy SaaS" for managing 
 15. Player Comparison (Side-by-side radar charts)
 16. AI Performance Analytics (GPT-5.2 insights)
 17. Drill Library (20+ pre-loaded exercises, CRUD, categories)
-18. Weekly Training Planner (Drag-and-drop drills into weekly calendar)
+18. Weekly Training Planner (Drag-and-drop drills into weekly calendar, **Duplicate plans** to other teams/weeks)
 19. Notifications (Real-time WebSocket + in-app)
 20. Light/Dark Theme Toggle
 
