@@ -547,6 +547,11 @@
     "sat": "Sa",
     "sun": "So",
     "drillPalette": "Übungspalette",
-    "planName": "Planname..."
+    "planName": "Planname...",
+    "duplicate": "Duplizieren",
+    "duplicateTitle": "Plan duplizieren",
+    "duplicateDesc": "Kopiere diesen Plan zu einem anderen Team oder einer anderen Woche",
+    "targetTeam": "Ziel-Team",
+    "targetWeek": "Ziel-Wochenbeginn"
   }
 }

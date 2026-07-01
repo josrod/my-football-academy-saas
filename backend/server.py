@@ -922,6 +922,27 @@ async def delete_training_plan(plan_id: str, request: Request):
     await db.training_plans.delete_one({"_id": ObjectId(plan_id), "club_id": user["club_id"]})
     return {"status": "deleted"}
 
+@app.post("/api/training-plans/{plan_id}/duplicate")
+async def duplicate_training_plan(plan_id: str, request: Request):
+    user = await get_user_from_request(request)
+    source = await db.training_plans.find_one({"_id": ObjectId(plan_id), "club_id": user["club_id"]})
+    if not source:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    body = await request.json()
+    doc = {
+        "team_id": body.get("target_team_id", source["team_id"]),
+        "week_start": body.get("target_week_start", source["week_start"]),
+        "name": (source.get("name", "") or "") + " (copia)",
+        "days": source.get("days", [[], [], [], [], [], [], []]),
+        "club_id": user["club_id"],
+        "created_by": user["name"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.training_plans.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
 # MATCHES
 @app.get("/api/matches")
 async def get_matches(request: Request, team_id: str = "", status: str = ""):

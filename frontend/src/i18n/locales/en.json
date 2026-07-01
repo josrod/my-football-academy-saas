@@ -547,6 +547,11 @@
     "sat": "Sat",
     "sun": "Sun",
     "drillPalette": "Drill Palette",
-    "planName": "Plan name..."
+    "planName": "Plan name...",
+    "duplicate": "Duplicate",
+    "duplicateTitle": "Duplicate Plan",
+    "duplicateDesc": "Copy this plan to another team or week",
+    "targetTeam": "Target Team",
+    "targetWeek": "Target Week Start"
   }
 }

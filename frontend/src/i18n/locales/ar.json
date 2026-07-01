@@ -547,6 +547,11 @@
     "sat": "سبت",
     "sun": "أحد",
     "drillPalette": "لوحة التمارين",
-    "planName": "اسم الخطة..."
+    "planName": "اسم الخطة...",
+    "duplicate": "نسخ",
+    "duplicateTitle": "نسخ الخطة",
+    "duplicateDesc": "انسخ هذه الخطة إلى فريق أو أسبوع آخر",
+    "targetTeam": "الفريق المستهدف",
+    "targetWeek": "بداية الأسبوع المستهدف"
   }
 }

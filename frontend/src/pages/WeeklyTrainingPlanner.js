@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { Loader2, ChevronLeft, ChevronRight, Save, Trash2, Plus, Clock, Target, Shield, Flame, Heart, Dumbbell, X, CalendarDays, GripVertical } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Save, Trash2, Plus, Clock, Target, Shield, Flame, Heart, Dumbbell, X, CalendarDays, GripVertical, Copy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CAT_ICON = { technical: Target, tactical: Shield, physical: Flame, goalkeeper: Heart, warmup: Dumbbell };
@@ -115,6 +115,10 @@ export default function WeeklyTrainingPlanner() {
   const [saving, setSaving] = useState(false);
   const [savedPlans, setSavedPlans] = useState([]);
   const [drillFilter, setDrillFilter] = useState('');
+  const [dupOpen, setDupOpen] = useState(false);
+  const [dupTeam, setDupTeam] = useState('');
+  const [dupWeek, setDupWeek] = useState('');
+  const [duplicating, setDuplicating] = useState(false);
 
   const DAY_LABELS = [
     t('planner.mon'), t('planner.tue'), t('planner.wed'),
@@ -189,6 +193,21 @@ export default function WeeklyTrainingPlanner() {
     setDays([[], [], [], [], [], [], []]);
   };
 
+  const handleDuplicate = async () => {
+    if (!planId) return;
+    setDuplicating(true);
+    try {
+      const res = await api.post(`/api/training-plans/${planId}/duplicate`, {
+        target_team_id: dupTeam || selectedTeam,
+        target_week_start: dupWeek || weekStart,
+      });
+      setDupOpen(false);
+      setSelectedTeam(res.team_id);
+      setWeekStart(res.week_start);
+    } catch (e) { console.error(e); }
+    setDuplicating(false);
+  };
+
   const navigateWeek = (dir) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + dir * 7);
@@ -209,6 +228,12 @@ export default function WeeklyTrainingPlanner() {
           <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('planner.title')}</h1>
         </div>
         <div className="flex items-center gap-2">
+          {planId && (
+            <button onClick={() => { setDupTeam(selectedTeam); setDupWeek(''); setDupOpen(true); }} data-testid="duplicate-plan-btn"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/10 transition-colors">
+              <Copy size={13} /> {t('planner.duplicate')}
+            </button>
+          )}
           {planId && (
             <button onClick={handleDelete} data-testid="delete-plan-btn"
               className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors">
@@ -302,6 +327,41 @@ export default function WeeklyTrainingPlanner() {
           ))}
         </div>
       </div>
+
+      {/* Duplicate Modal */}
+      <AnimatePresence>
+        {dupOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setDupOpen(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()} data-testid="duplicate-modal">
+              <h3 className="text-lg font-bold text-white mb-1">{t('planner.duplicateTitle')}</h3>
+              <p className="text-xs text-zinc-400 mb-5">{t('planner.duplicateDesc')}</p>
+
+              <label className="block text-xs text-zinc-400 mb-1">{t('planner.targetTeam')}</label>
+              <select value={dupTeam} onChange={e => setDupTeam(e.target.value)} data-testid="dup-team-select"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white mb-4 focus:outline-none focus:border-primary/50">
+                {teams.map(tm => <option key={tm.id} value={tm.id}>{tm.name}</option>)}
+              </select>
+
+              <label className="block text-xs text-zinc-400 mb-1">{t('planner.targetWeek')}</label>
+              <input type="date" value={dupWeek} onChange={e => setDupWeek(e.target.value)} data-testid="dup-week-input"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white mb-6 focus:outline-none focus:border-primary/50" />
+
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => setDupOpen(false)}
+                  className="px-4 py-2 text-xs text-zinc-400 hover:text-white rounded-lg transition-colors" data-testid="dup-cancel-btn">
+                  {t('common.cancel')}
+                </button>
+                <button onClick={handleDuplicate} disabled={duplicating} data-testid="dup-confirm-btn"
+                  className="flex items-center gap-1.5 px-5 py-2 bg-cyan-500 text-black text-xs font-bold rounded-lg hover:bg-cyan-400 transition-colors disabled:opacity-50">
+                  {duplicating ? <Loader2 size={13} className="animate-spin" /> : <Copy size={13} />} {t('planner.duplicate')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

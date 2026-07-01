@@ -547,6 +547,11 @@
     "sat": "Sáb",
     "sun": "Dom",
     "drillPalette": "Paleta de Ejercicios",
-    "planName": "Nombre del plan..."
+    "planName": "Nombre del plan...",
+    "duplicate": "Duplicar",
+    "duplicateTitle": "Duplicar Plan",
+    "duplicateDesc": "Copia este plan a otro equipo o semana",
+    "targetTeam": "Equipo Destino",
+    "targetWeek": "Inicio de Semana Destino"
   }
 }

@@ -547,6 +547,11 @@
     "sat": "Sam",
     "sun": "Dim",
     "drillPalette": "Palette d'Exercices",
-    "planName": "Nom du plan..."
+    "planName": "Nom du plan...",
+    "duplicate": "Dupliquer",
+    "duplicateTitle": "Dupliquer le Plan",
+    "duplicateDesc": "Copiez ce plan vers une autre équipe ou semaine",
+    "targetTeam": "Équipe Cible",
+    "targetWeek": "Début de Semaine Cible"
   }
 }

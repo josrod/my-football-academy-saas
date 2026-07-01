@@ -1,0 +1,71 @@
+{
+  "summary": "Iteration 13: Training Plan Duplicate feature fully tested. Backend 100% (5/5 tests passed). Frontend 100% - All duplicate features working: button visibility, modal open/close, team selector, week input, cancel button, confirm button, navigation to duplicated plan.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: POST /api/training-plans/{plan_id}/duplicate creates a copy with target_team_id and target_week_start",
+    "Backend: Duplicated plan has name with ' (copia)' suffix",
+    "Backend: Duplicated plan preserves all drills in days array",
+    "Backend: Duplicate endpoint returns 404 for non-existent plan_id",
+    "Backend: Duplicate to different team works correctly",
+    "Frontend: Duplicate button (data-testid='duplicate-plan-btn') appears when planId exists",
+    "Frontend: Clicking 'Duplicar' opens modal (data-testid='duplicate-modal')",
+    "Frontend: Modal has team selector (data-testid='dup-team-select')",
+    "Frontend: Modal has week date input (data-testid='dup-week-input')",
+    "Frontend: Cancel button (data-testid='dup-cancel-btn') closes modal without duplicating",
+    "Frontend: Confirm button (data-testid='dup-confirm-btn') duplicates plan",
+    "Frontend: After confirm, navigates to duplicated plan (changes team and week to target values)",
+    "Frontend: Duplicated plan shows ' (copia)' suffix in name field"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_duplicate_plan.py",
+    "/app/test_reports/pytest/pytest_duplicate_plan.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_duplicate_plan.py"
+  ],
+  "success_rate": {
+    "backend": "100% (5/5)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "Created test plan via drag-and-drop during frontend testing",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Training Plan Duplicate feature fully functional. Backend endpoint POST /api/training-plans/{plan_id}/duplicate works correctly - copies days array, adds ' (copia)' suffix to name, uses target_team_id and target_week_start. Frontend modal with team selector and week input works. All data-testid attributes properly implemented. Test credentials: carlos@academy.com / coach123",
+  "features_verified": {
+    "duplicate_training_plan": {
+      "endpoint": "POST /api/training-plans/{plan_id}/duplicate",
+      "request_body": {
+        "target_team_id": "string (optional, defaults to source team)",
+        "target_week_start": "string YYYY-MM-DD (optional, defaults to source week)"
+      },
+      "response": {
+        "id": "new plan id",
+        "team_id": "target team id",
+        "week_start": "target week start",
+        "name": "source name + ' (copia)'",
+        "days": "copied from source"
+      },
+      "data_testids": [
+        "duplicate-plan-btn",
+        "duplicate-modal",
+        "dup-team-select",
+        "dup-week-input",
+        "dup-cancel-btn",
+        "dup-confirm-btn"
+      ]
+    }
+  },
+  "test_credentials": {
+    "coach": "carlos@academy.com / coach123"
+  }
+}
