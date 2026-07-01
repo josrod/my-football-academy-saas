@@ -61,7 +61,8 @@
     "formations": "Formations",
     "comparePlayers": "Compare",
     "aiInsights": "AI Insights",
-    "drills": "Drills"
+    "drills": "Drills",
+    "planner": "Weekly Planner"
   },
   "landing": {
     "subtitle": "Youth Football Academy Platform",
@@ -533,5 +534,19 @@
     "instructionsPlaceholder": "One step per line...",
     "equipmentLabel": "Equipment (comma separated)",
     "tagsLabel": "Tags (comma separated)"
+  },
+  "planner": {
+    "title": "Weekly Training Planner",
+    "subtitle": "Training Planning",
+    "dropHere": "Drop drills here",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun",
+    "drillPalette": "Drill Palette",
+    "planName": "Plan name..."
   }
 }

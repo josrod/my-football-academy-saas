@@ -61,7 +61,8 @@
     "formations": "التشكيلات",
     "comparePlayers": "مقارنة",
     "aiInsights": "رؤى الذكاء",
-    "drills": "تمارين"
+    "drills": "تمارين",
+    "planner": "المخطط الأسبوعي"
   },
   "landing": {
     "subtitle": "منصة أكاديميات كرة القدم للناشئين",
@@ -533,5 +534,19 @@
     "instructionsPlaceholder": "خطوة واحدة في كل سطر...",
     "equipmentLabel": "المعدات (مفصولة بفواصل)",
     "tagsLabel": "الوسوم (مفصولة بفواصل)"
+  },
+  "planner": {
+    "title": "مخطط التدريب الأسبوعي",
+    "subtitle": "تخطيط التدريب",
+    "dropHere": "اسحب التمارين هنا",
+    "mon": "اثن",
+    "tue": "ثلا",
+    "wed": "أرب",
+    "thu": "خمي",
+    "fri": "جمع",
+    "sat": "سبت",
+    "sun": "أحد",
+    "drillPalette": "لوحة التمارين",
+    "planName": "اسم الخطة..."
   }
 }

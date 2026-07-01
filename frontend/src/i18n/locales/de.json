@@ -61,7 +61,8 @@
     "formations": "Formationen",
     "comparePlayers": "Vergleichen",
     "aiInsights": "KI Insights",
-    "drills": "Übungen"
+    "drills": "Übungen",
+    "planner": "Wochenplaner"
   },
   "landing": {
     "subtitle": "Jugendfußball-Akademie Plattform",
@@ -533,5 +534,19 @@
     "instructionsPlaceholder": "Ein Schritt pro Zeile...",
     "equipmentLabel": "Ausrüstung (kommagetrennt)",
     "tagsLabel": "Tags (kommagetrennt)"
+  },
+  "planner": {
+    "title": "Wöchentlicher Trainingsplaner",
+    "subtitle": "Trainingsplanung",
+    "dropHere": "Übungen hier ablegen",
+    "mon": "Mo",
+    "tue": "Di",
+    "wed": "Mi",
+    "thu": "Do",
+    "fri": "Fr",
+    "sat": "Sa",
+    "sun": "So",
+    "drillPalette": "Übungspalette",
+    "planName": "Planname..."
   }
 }

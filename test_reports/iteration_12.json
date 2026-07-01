@@ -1,0 +1,134 @@
+{
+  "summary": "Iteration 12: Weekly Training Planner feature fully tested. Backend 100% (11/11 tests passed after fixing Pydantic model bug). Frontend 100% - All planner features working: navigation, 7-day grid, drill palette, category filtering, team selection, week navigation, drag-and-drop, save/update/delete, and persistence.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [],
+    "fixed": [
+      {
+        "endpoint": "POST /api/training-plans",
+        "issue": "Pydantic model TrainingPlanCreate had `days: List[dict]` but frontend sends `days: List[List[dict]]` (array of 7 arrays)",
+        "fix": "Changed model to `days: List[List[dict]] = []` in server.py line 298",
+        "file": "/app/backend/server.py"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: GET /api/training-plans returns list (empty or with plans)",
+    "Backend: POST /api/training-plans creates a new plan with team_id, week_start, name, days array",
+    "Backend: GET /api/training-plans/{plan_id} returns single plan with all fields",
+    "Backend: GET /api/training-plans?team_id=X&week_start=Y filters correctly",
+    "Backend: PUT /api/training-plans/{plan_id} updates plan name and days",
+    "Backend: GET /api/training-plans/{invalid_id} returns 404",
+    "Backend: DELETE /api/training-plans/{plan_id} deletes plan",
+    "Backend: Plan structure contains id, team_id, week_start, name, days (7 elements)",
+    "Backend: Drill structure in plan contains drill_id, name, category, duration_minutes",
+    "Frontend: Navigation to /training/planner from sidebar 'Plan Semanal' link works",
+    "Frontend: Weekly Planner page loads with data-testid='weekly-planner-page'",
+    "Frontend: 7-day grid displayed (Mon-Sun) with data-testid='week-grid'",
+    "Frontend: Day columns present (data-testid='day-column-0' through 'day-column-6')",
+    "Frontend: Drill palette shows all available drills from /api/drills",
+    "Frontend: Category filter buttons work (Todos, Técnica, Táctica, Físico, Portero, Calentamiento)",
+    "Frontend: Team selector dropdown works (data-testid='planner-team-select')",
+    "Frontend: Week navigation buttons work (data-testid='prev-week-btn', 'next-week-btn')",
+    "Frontend: Plan name input works (data-testid='plan-name-input')",
+    "Frontend: Drag-and-drop drill from palette to day column works",
+    "Frontend: Save button creates/updates plan (data-testid='save-plan-btn')",
+    "Frontend: Delete button removes plan (data-testid='delete-plan-btn')",
+    "Frontend: Saved plan persists and loads on page reload",
+    "Frontend: Spanish i18n translations complete for planner section"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_training_plans.py",
+    "/app/test_reports/pytest/pytest_training_plans.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Backend Pydantic model was fixed: TrainingPlanCreate.days changed from List[dict] to List[List[dict]]",
+    "All data-testid attributes properly implemented for testing",
+    "Drag-and-drop uses native HTML5 dataTransfer API correctly",
+    "Plan auto-loads when team/week changes via useCallback and useEffect",
+    "Spanish i18n translations complete in planner section"
+  ],
+  "updated_files": [
+    "/app/backend/server.py",
+    "/app/backend/tests/test_training_plans.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None - used existing seeded drills and teams",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Weekly Training Planner feature fully functional. Backend CRUD endpoints at /api/training-plans work correctly after Pydantic model fix. Frontend drag-and-drop, save, update, delete all working. Plan persists across page reloads. Spanish translations verified. Test credentials: carlos@academy.com / coach123",
+  "features_verified": {
+    "weekly_training_planner": {
+      "page": "/training/planner",
+      "endpoints": [
+        "GET /api/training-plans",
+        "GET /api/training-plans?team_id={id}&week_start={date}",
+        "GET /api/training-plans/{plan_id}",
+        "POST /api/training-plans",
+        "PUT /api/training-plans/{plan_id}",
+        "DELETE /api/training-plans/{plan_id}"
+      ],
+      "data_testids": [
+        "weekly-planner-page",
+        "planner-team-select",
+        "prev-week-btn",
+        "next-week-btn",
+        "plan-name-input",
+        "save-plan-btn",
+        "delete-plan-btn",
+        "week-grid",
+        "day-column-0 through day-column-6",
+        "palette-drill-{id}",
+        "plan-drill-{id}"
+      ],
+      "plan_structure": {
+        "id": "string",
+        "team_id": "string",
+        "week_start": "YYYY-MM-DD",
+        "name": "string",
+        "days": "List[List[dict]] - 7 arrays for Mon-Sun",
+        "club_id": "string",
+        "created_by": "string",
+        "created_at": "ISO datetime"
+      },
+      "drill_in_plan_structure": {
+        "drill_id": "string",
+        "name": "string",
+        "category": "string",
+        "duration_minutes": "int",
+        "difficulty": "string"
+      }
+    },
+    "i18n_translations": {
+      "namespace": "planner",
+      "keys_verified": [
+        "planner.title",
+        "planner.subtitle",
+        "planner.dropHere",
+        "planner.mon through planner.sun",
+        "planner.drillPalette",
+        "planner.planName",
+        "nav.planner"
+      ],
+      "languages_tested": ["es"]
+    }
+  },
+  "test_credentials": {
+    "coach": "carlos@academy.com / coach123"
+  },
+  "bug_fixed": {
+    "description": "Backend Pydantic model TrainingPlanCreate had incorrect type for 'days' field",
+    "root_cause": "Model defined `days: List[dict]` but frontend sends `days: List[List[dict]]` (array of 7 arrays, one per day)",
+    "fix_applied": "Changed line 298 in server.py from `days: List[dict] = []` to `days: List[List[dict]] = []`",
+    "verification": "All 11 backend tests pass, frontend save/load works correctly"
+  }
+}

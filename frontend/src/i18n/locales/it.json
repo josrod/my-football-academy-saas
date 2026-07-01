@@ -61,7 +61,8 @@
     "formations": "Formazioni",
     "comparePlayers": "Confronta",
     "aiInsights": "IA Insights",
-    "drills": "Esercizi"
+    "drills": "Esercizi",
+    "planner": "Planner Settimanale"
   },
   "landing": {
     "subtitle": "Piattaforma per Accademie di Calcio Giovanile",
@@ -533,5 +534,19 @@
     "instructionsPlaceholder": "Un passaggio per riga...",
     "equipmentLabel": "Attrezzatura (separata da virgole)",
     "tagsLabel": "Tag (separati da virgole)"
+  },
+  "planner": {
+    "title": "Pianificatore Settimanale",
+    "subtitle": "Pianificazione Allenamento",
+    "dropHere": "Trascina gli esercizi qui",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Gio",
+    "fri": "Ven",
+    "sat": "Sab",
+    "sun": "Dom",
+    "drillPalette": "Palette Esercizi",
+    "planName": "Nome del piano..."
   }
 }

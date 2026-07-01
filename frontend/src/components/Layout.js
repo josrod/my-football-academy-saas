@@ -7,7 +7,7 @@ import api from '../api';
 import {
   LayoutDashboard, Users, Shield, Dumbbell, Swords, CalendarDays,
   Search, FileBarChart, Megaphone, Settings, LogOut, Menu, X, Eye, Globe, Bell, Trophy, Crosshair,
-  Sun, Moon, GitCompare, Brain, BookOpen
+  Sun, Moon, GitCompare, Brain, BookOpen, CalendarRange
 } from 'lucide-react';
 
 const LANGS = [
@@ -84,6 +84,7 @@ export default function Layout({ children }) {
     { path: '/teams', label: t('nav.teams'), icon: Shield },
     { path: '/training', label: t('nav.training'), icon: Dumbbell },
     { path: '/drills', label: t('nav.drills'), icon: BookOpen },
+    { path: '/training/planner', label: t('nav.planner'), icon: CalendarRange },
     { path: '/matches', label: t('nav.matches'), icon: Swords },
     { path: '/formations', label: t('nav.formations'), icon: Crosshair },
     { path: '/calendar', label: t('nav.calendar'), icon: CalendarDays },

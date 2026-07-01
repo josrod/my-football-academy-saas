@@ -61,7 +61,8 @@
     "formations": "Formations",
     "comparePlayers": "Comparer",
     "aiInsights": "IA Insights",
-    "drills": "Exercices"
+    "drills": "Exercices",
+    "planner": "Planning Hebdo"
   },
   "landing": {
     "subtitle": "Plateforme d'Académies de Football Jeunes",
@@ -533,5 +534,19 @@
     "instructionsPlaceholder": "Une étape par ligne...",
     "equipmentLabel": "Équipement (séparé par virgules)",
     "tagsLabel": "Tags (séparés par virgules)"
+  },
+  "planner": {
+    "title": "Planificateur Hebdomadaire",
+    "subtitle": "Planification d'Entraînement",
+    "dropHere": "Déposez les exercices ici",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Jeu",
+    "fri": "Ven",
+    "sat": "Sam",
+    "sun": "Dim",
+    "drillPalette": "Palette d'Exercices",
+    "planName": "Nom du plan..."
   }
 }

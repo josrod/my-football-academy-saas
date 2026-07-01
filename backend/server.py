@@ -291,6 +291,12 @@ class DrillCreate(BaseModel):
     tags: List[str] = []
     image_url: Optional[str] = None
 
+class TrainingPlanCreate(BaseModel):
+    team_id: str
+    week_start: str
+    name: str = ""
+    days: List[List[dict]] = []
+
 class InjuryCreate(BaseModel):
     player_id: str
     type: str
@@ -862,6 +868,59 @@ async def get_session_drills(session_id: str, request: Request):
         except:
             pass
     return drills
+
+# TRAINING PLANS (Weekly Planner)
+@app.get("/api/training-plans")
+async def get_training_plans(request: Request, team_id: str = "", week_start: str = ""):
+    user = await get_user_from_request(request)
+    query = {"club_id": user["club_id"]}
+    if team_id:
+        query["team_id"] = team_id
+    if week_start:
+        query["week_start"] = week_start
+    plans = await db.training_plans.find(query).sort("week_start", -1).to_list(50)
+    return str_ids(plans)
+
+@app.get("/api/training-plans/{plan_id}")
+async def get_training_plan(plan_id: str, request: Request):
+    user = await get_user_from_request(request)
+    plan = await db.training_plans.find_one({"_id": ObjectId(plan_id), "club_id": user["club_id"]})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return str_id(plan)
+
+@app.post("/api/training-plans")
+async def create_training_plan(data: TrainingPlanCreate, request: Request):
+    user = await get_user_from_request(request)
+    doc = {
+        "team_id": data.team_id, "week_start": data.week_start, "name": data.name,
+        "days": data.days, "club_id": user["club_id"],
+        "created_by": user["name"], "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.training_plans.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
+@app.put("/api/training-plans/{plan_id}")
+async def update_training_plan(plan_id: str, request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    body.pop("id", None)
+    body.pop("_id", None)
+    body.pop("club_id", None)
+    body["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.training_plans.update_one(
+        {"_id": ObjectId(plan_id), "club_id": user["club_id"]},
+        {"$set": body}
+    )
+    return {"status": "updated"}
+
+@app.delete("/api/training-plans/{plan_id}")
+async def delete_training_plan(plan_id: str, request: Request):
+    user = await get_user_from_request(request)
+    await db.training_plans.delete_one({"_id": ObjectId(plan_id), "club_id": user["club_id"]})
+    return {"status": "deleted"}
 
 # MATCHES
 @app.get("/api/matches")
