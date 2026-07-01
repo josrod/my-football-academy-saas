@@ -552,6 +552,10 @@
     "duplicateTitle": "Duplica Piano",
     "duplicateDesc": "Copia questo piano su un'altra squadra o settimana",
     "targetTeam": "Squadra Destinazione",
-    "targetWeek": "Inizio Settimana Destinazione"
+    "targetWeek": "Inizio Settimana Destinazione",
+    "templates": "Modelli",
+    "templatesTitle": "Modelli di Piano",
+    "templatesDesc": "Seleziona un modello predefinito per il pianificatore settimanale",
+    "daysActive": "giorni"
   }
 }

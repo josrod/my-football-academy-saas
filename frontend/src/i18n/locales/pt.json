@@ -552,6 +552,10 @@
     "duplicateTitle": "Duplicar Plano",
     "duplicateDesc": "Copie este plano para outra equipa ou semana",
     "targetTeam": "Equipa Destino",
-    "targetWeek": "Início da Semana Destino"
+    "targetWeek": "Início da Semana Destino",
+    "templates": "Modelos",
+    "templatesTitle": "Modelos de Plano",
+    "templatesDesc": "Selecione um modelo predefinido para o planeador semanal",
+    "daysActive": "dias"
   }
 }

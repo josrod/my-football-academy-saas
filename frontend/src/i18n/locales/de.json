@@ -552,6 +552,10 @@
     "duplicateTitle": "Plan duplizieren",
     "duplicateDesc": "Kopiere diesen Plan zu einem anderen Team oder einer anderen Woche",
     "targetTeam": "Ziel-Team",
-    "targetWeek": "Ziel-Wochenbeginn"
+    "targetWeek": "Ziel-Wochenbeginn",
+    "templates": "Vorlagen",
+    "templatesTitle": "Planvorlagen",
+    "templatesDesc": "Wählen Sie eine vordefinierte Vorlage für den Wochenplaner",
+    "daysActive": "Tage"
   }
 }

@@ -1,0 +1,83 @@
+{
+  "summary": "Iteration 14: Training Plan Templates feature fully tested. Backend 100% (12/12 tests passed). Frontend 100% - All template features working: Plantillas button visibility, modal open/close, all 5 template cards displayed with stats, template application loads drills into grid, plan name populated, save functionality works.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: GET /api/training-plan-templates requires authentication (401 without token)",
+    "Backend: Endpoint returns exactly 5 templates",
+    "Backend: All 5 template IDs present (preseason, recovery, matchweek, technical, goalkeeper)",
+    "Backend: Each template has required fields (id, name, description, icon, days)",
+    "Backend: Each template has exactly 7 days in days array (Mon-Sun)",
+    "Backend: Each day element is an array of drill objects with name, category, duration_minutes",
+    "Backend: Preseason template has correct name 'Pretemporada' and icon 'flame'",
+    "Backend: Recovery template has correct name 'Recuperación' and icon 'heart'",
+    "Backend: Matchweek template has correct name 'Semana de Partido' and icon 'shield' with tactical drills",
+    "Backend: Technical template has correct name 'Técnica Intensiva' and icon 'target' with technical drills",
+    "Backend: Goalkeeper template has correct name 'Porteros' with goalkeeper-specific drills",
+    "Backend: All drill durations are positive integers",
+    "Frontend: Plantillas button (data-testid='templates-btn') is always visible in planner header",
+    "Frontend: Clicking Plantillas opens modal (data-testid='templates-modal') listing all 5 templates",
+    "Frontend: Each template card shows name, description, active days count, drill count, and total minutes",
+    "Frontend: Clicking template card (e.g. template-preseason) loads drills into weekly grid",
+    "Frontend: After loading template, plan name field is populated with template name",
+    "Frontend: After loading template, weekly grid shows correct drills (23 drills for Pretemporada)",
+    "Frontend: Cancel button (data-testid='tpl-close-btn') closes modal without changes",
+    "Frontend: User can save a template-loaded plan by clicking Save button"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_training_plan_templates.py",
+    "/app/test_reports/pytest/pytest_templates.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_training_plan_templates.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None - templates are static data in PLAN_TEMPLATES constant",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Training Plan Templates feature fully functional. Backend endpoint GET /api/training-plan-templates returns 5 predefined templates (preseason, recovery, matchweek, technical, goalkeeper). Each template has id, name, description, icon, and days array with 7 elements (Mon-Sun). Frontend modal displays all templates with stats (active days, drill count, total minutes). Applying a template sets days state, planName, and resets planId to null. Test credentials: carlos@academy.com / coach123",
+  "features_verified": {
+    "training_plan_templates": {
+      "endpoint": "GET /api/training-plan-templates",
+      "authentication": "Required (401 without token)",
+      "response_structure": {
+        "templates_count": 5,
+        "template_ids": ["preseason", "recovery", "matchweek", "technical", "goalkeeper"],
+        "template_fields": ["id", "name", "description", "icon", "days"],
+        "days_array_length": 7
+      },
+      "template_details": {
+        "preseason": {"name": "Pretemporada", "icon": "flame", "drills": 23, "minutes": 334},
+        "recovery": {"name": "Recuperación", "icon": "heart", "drills": 10, "minutes": 109},
+        "matchweek": {"name": "Semana de Partido", "icon": "shield", "drills": 20, "minutes": 287},
+        "technical": {"name": "Técnica Intensiva", "icon": "target", "drills": 23, "minutes": 293},
+        "goalkeeper": {"name": "Porteros", "icon": "heart", "drills": "varies"}
+      },
+      "data_testids": [
+        "templates-btn",
+        "templates-modal",
+        "template-preseason",
+        "template-recovery",
+        "template-matchweek",
+        "template-technical",
+        "template-goalkeeper",
+        "tpl-close-btn"
+      ]
+    }
+  },
+  "test_credentials": {
+    "coach": "carlos@academy.com / coach123"
+  }
+}

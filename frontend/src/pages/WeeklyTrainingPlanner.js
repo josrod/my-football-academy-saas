@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api';
-import { Loader2, ChevronLeft, ChevronRight, Save, Trash2, Plus, Clock, Target, Shield, Flame, Heart, Dumbbell, X, CalendarDays, GripVertical, Copy } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Save, Trash2, Plus, Clock, Target, Shield, Flame, Heart, Dumbbell, X, CalendarDays, GripVertical, Copy, LayoutTemplate } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CAT_ICON = { technical: Target, tactical: Shield, physical: Flame, goalkeeper: Heart, warmup: Dumbbell };
@@ -119,6 +119,9 @@ export default function WeeklyTrainingPlanner() {
   const [dupTeam, setDupTeam] = useState('');
   const [dupWeek, setDupWeek] = useState('');
   const [duplicating, setDuplicating] = useState(false);
+  const [tplOpen, setTplOpen] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [tplLoading, setTplLoading] = useState(false);
 
   const DAY_LABELS = [
     t('planner.mon'), t('planner.tue'), t('planner.wed'),
@@ -208,6 +211,24 @@ export default function WeeklyTrainingPlanner() {
     setDuplicating(false);
   };
 
+  const openTemplates = async () => {
+    setTplOpen(true);
+    if (templates.length) return;
+    setTplLoading(true);
+    try {
+      const data = await api.get('/api/training-plan-templates');
+      setTemplates(data);
+    } catch (e) { console.error(e); }
+    setTplLoading(false);
+  };
+
+  const applyTemplate = (tpl) => {
+    setDays(tpl.days.map(d => [...d]));
+    setPlanName(tpl.name);
+    setPlanId(null);
+    setTplOpen(false);
+  };
+
   const navigateWeek = (dir) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + dir * 7);
@@ -228,6 +249,10 @@ export default function WeeklyTrainingPlanner() {
           <h1 className="font-heading text-3xl font-bold text-white uppercase tracking-tight">{t('planner.title')}</h1>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={openTemplates} data-testid="templates-btn"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/10 transition-colors">
+            <LayoutTemplate size={13} /> {t('planner.templates')}
+          </button>
           {planId && (
             <button onClick={() => { setDupTeam(selectedTeam); setDupWeek(''); setDupOpen(true); }} data-testid="duplicate-plan-btn"
               className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/10 transition-colors">
@@ -327,6 +352,55 @@ export default function WeeklyTrainingPlanner() {
           ))}
         </div>
       </div>
+
+      {/* Templates Modal */}
+      <AnimatePresence>
+        {tplOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setTplOpen(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-lg" onClick={e => e.stopPropagation()} data-testid="templates-modal">
+              <h3 className="text-lg font-bold text-white mb-1">{t('planner.templatesTitle')}</h3>
+              <p className="text-xs text-zinc-400 mb-5">{t('planner.templatesDesc')}</p>
+              {tplLoading ? (
+                <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-primary" /></div>
+              ) : (
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {templates.map(tpl => {
+                    const TplIcon = CAT_ICON[tpl.icon] || LayoutTemplate;
+                    const totalDrillsCount = tpl.days.flat().length;
+                    const totalMin = tpl.days.flat().reduce((s, d) => s + (d.duration_minutes || 0), 0);
+                    const activeDays = tpl.days.filter(d => d.length > 0).length;
+                    return (
+                      <button key={tpl.id} onClick={() => applyTemplate(tpl)} data-testid={`template-${tpl.id}`}
+                        className="w-full flex items-start gap-3 p-4 rounded-xl border border-zinc-800 hover:border-primary/30 hover:bg-primary/[0.03] text-left transition-all group">
+                        <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/20 transition-colors">
+                          <TplIcon size={16} className="text-amber-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white group-hover:text-primary transition-colors">{tpl.name}</p>
+                          <p className="text-[11px] text-zinc-500 mt-0.5">{tpl.description}</p>
+                          <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-600">
+                            <span>{activeDays} {t('planner.daysActive')}</span>
+                            <span>{totalDrillsCount} {t('drills.exercises')}</span>
+                            <span>{totalMin} min</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="flex justify-end mt-4">
+                <button onClick={() => setTplOpen(false)} data-testid="tpl-close-btn"
+                  className="px-4 py-2 text-xs text-zinc-400 hover:text-white rounded-lg transition-colors">
+                  {t('common.cancel')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Duplicate Modal */}
       <AnimatePresence>

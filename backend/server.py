@@ -869,6 +869,158 @@ async def get_session_drills(session_id: str, request: Request):
             pass
     return drills
 
+# TRAINING PLAN TEMPLATES
+PLAN_TEMPLATES = [
+    {
+        "id": "preseason",
+        "name": "Pretemporada",
+        "description": "Semana intensiva de acondicionamiento físico y fundamentos técnicos",
+        "icon": "flame",
+        "days": [
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Endurance Circuit", "category": "physical", "duration_minutes": 30},
+             {"name": "Core Strength Session", "category": "physical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Rondo 4v2", "category": "technical", "duration_minutes": 12},
+             {"name": "Ball Control Relay", "category": "technical", "duration_minutes": 12},
+             {"name": "Sprint Intervals", "category": "physical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Agility Ladder Drills", "category": "physical", "duration_minutes": 15},
+             {"name": "Passing Triangle", "category": "technical", "duration_minutes": 10},
+             {"name": "Shooting Circuit", "category": "technical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Endurance Circuit", "category": "physical", "duration_minutes": 30},
+             {"name": "1v1 Dribbling Challenge", "category": "technical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Sprint Intervals", "category": "physical", "duration_minutes": 20},
+             {"name": "Crossing & Finishing", "category": "technical", "duration_minutes": 20},
+             {"name": "Core Strength Session", "category": "physical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [], []
+        ]
+    },
+    {
+        "id": "recovery",
+        "name": "Recuperación",
+        "description": "Semana ligera post-partido o post-lesión con énfasis en movilidad",
+        "icon": "heart",
+        "days": [
+            [],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Passing Triangle", "category": "technical", "duration_minutes": 10},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Rondo 4v2", "category": "technical", "duration_minutes": 12},
+             {"name": "Ball Control Relay", "category": "technical", "duration_minutes": 12},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Agility Ladder Drills", "category": "physical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [], []
+        ]
+    },
+    {
+        "id": "matchweek",
+        "name": "Semana de Partido",
+        "description": "Preparación táctica para el partido del fin de semana",
+        "icon": "shield",
+        "days": [
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Positional Play 6v4", "category": "tactical", "duration_minutes": 20},
+             {"name": "Pressing Triggers", "category": "tactical", "duration_minutes": 25},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Transition Game 5v5", "category": "tactical", "duration_minutes": 20},
+             {"name": "Small-Sided Game 3v3", "category": "tactical", "duration_minutes": 15},
+             {"name": "Set Piece Rehearsal", "category": "tactical", "duration_minutes": 25},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Rondo 4v2", "category": "technical", "duration_minutes": 12},
+             {"name": "Shooting Circuit", "category": "technical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Set Piece Rehearsal", "category": "tactical", "duration_minutes": 25},
+             {"name": "Passing Triangle", "category": "technical", "duration_minutes": 10},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Small-Sided Game 3v3", "category": "tactical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [], []
+        ]
+    },
+    {
+        "id": "technical",
+        "name": "Técnica Intensiva",
+        "description": "Semana centrada en habilidades técnicas individuales",
+        "icon": "target",
+        "days": [
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Ball Control Relay", "category": "technical", "duration_minutes": 12},
+             {"name": "1v1 Dribbling Challenge", "category": "technical", "duration_minutes": 15},
+             {"name": "Passing Triangle", "category": "technical", "duration_minutes": 10},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Rondo 4v2", "category": "technical", "duration_minutes": 12},
+             {"name": "Crossing & Finishing", "category": "technical", "duration_minutes": 20},
+             {"name": "Shooting Circuit", "category": "technical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Agility Ladder Drills", "category": "physical", "duration_minutes": 15},
+             {"name": "1v1 Dribbling Challenge", "category": "technical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Passing Triangle", "category": "technical", "duration_minutes": 10},
+             {"name": "Shooting Circuit", "category": "technical", "duration_minutes": 20},
+             {"name": "Crossing & Finishing", "category": "technical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Ball Control Relay", "category": "technical", "duration_minutes": 12},
+             {"name": "Rondo 4v2", "category": "technical", "duration_minutes": 12},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [], []
+        ]
+    },
+    {
+        "id": "goalkeeper",
+        "name": "Porteros",
+        "description": "Semana enfocada en entrenamiento específico de porteros",
+        "icon": "heart",
+        "days": [
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "GK Reaction Saves", "category": "goalkeeper", "duration_minutes": 15},
+             {"name": "GK 1v1 Technique", "category": "goalkeeper", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "GK Distribution", "category": "goalkeeper", "duration_minutes": 20},
+             {"name": "Agility Ladder Drills", "category": "physical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "GK Reaction Saves", "category": "goalkeeper", "duration_minutes": 15},
+             {"name": "Crossing & Finishing", "category": "technical", "duration_minutes": 20},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "GK 1v1 Technique", "category": "goalkeeper", "duration_minutes": 15},
+             {"name": "GK Distribution", "category": "goalkeeper", "duration_minutes": 20},
+             {"name": "Core Strength Session", "category": "physical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [{"name": "Dynamic Warm-Up", "category": "warmup", "duration_minutes": 10},
+             {"name": "Small-Sided Game 3v3", "category": "tactical", "duration_minutes": 15},
+             {"name": "Cool Down & Stretching", "category": "warmup", "duration_minutes": 10}],
+            [], []
+        ]
+    }
+]
+
+@app.get("/api/training-plan-templates")
+async def get_plan_templates(request: Request):
+    await get_user_from_request(request)
+    return PLAN_TEMPLATES
+
 # TRAINING PLANS (Weekly Planner)
 @app.get("/api/training-plans")
 async def get_training_plans(request: Request, team_id: str = "", week_start: str = ""):

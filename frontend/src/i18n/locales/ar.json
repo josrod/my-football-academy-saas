@@ -552,6 +552,10 @@
     "duplicateTitle": "نسخ الخطة",
     "duplicateDesc": "انسخ هذه الخطة إلى فريق أو أسبوع آخر",
     "targetTeam": "الفريق المستهدف",
-    "targetWeek": "بداية الأسبوع المستهدف"
+    "targetWeek": "بداية الأسبوع المستهدف",
+    "templates": "قوالب",
+    "templatesTitle": "قوالب الخطة",
+    "templatesDesc": "اختر قالبًا محددًا مسبقًا للمخطط الأسبوعي",
+    "daysActive": "أيام"
   }
 }
