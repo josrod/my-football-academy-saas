@@ -27,6 +27,7 @@ import SeasonDetail from './pages/SeasonDetail';
 import FormationAnalysis from './pages/FormationAnalysis';
 import PlayerComparison from './pages/PlayerComparison';
 import AIInsights from './pages/AIInsights';
+import DrillLibrary from './pages/DrillLibrary';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -72,6 +73,7 @@ function App() {
           <Route path="/formations" element={<ProtectedRoute><FormationAnalysis /></ProtectedRoute>} />
           <Route path="/compare-players" element={<ProtectedRoute><PlayerComparison /></ProtectedRoute>} />
           <Route path="/ai-insights" element={<ProtectedRoute><AIInsights /></ProtectedRoute>} />
+          <Route path="/drills" element={<ProtectedRoute><DrillLibrary /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

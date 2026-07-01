@@ -277,6 +277,20 @@ class FormationCreate(BaseModel):
     team_id: str
     positions: List[dict] = []
 
+class DrillCreate(BaseModel):
+    name: str
+    description: str = ""
+    category: str = "technical"
+    difficulty: str = "intermediate"
+    duration_minutes: int = 15
+    min_players: int = 2
+    max_players: int = 22
+    equipment: List[str] = []
+    min_age: int = 6
+    instructions: List[str] = []
+    tags: List[str] = []
+    image_url: Optional[str] = None
+
 class InjuryCreate(BaseModel):
     player_id: str
     type: str
@@ -770,6 +784,84 @@ async def save_attendance(session_id: str, request: Request):
             "created_at": datetime.now(timezone.utc).isoformat()
         })
     return {"status": "saved", "count": len(records)}
+
+# DRILLS LIBRARY
+@app.get("/api/drills")
+async def get_drills(request: Request, category: str = "", difficulty: str = "", search: str = ""):
+    user = await get_user_from_request(request)
+    query = {"$or": [{"club_id": user["club_id"]}, {"club_id": "global"}]}
+    if category:
+        query["category"] = category
+    if difficulty:
+        query["difficulty"] = difficulty
+    if search:
+        query["$and"] = query.pop("$or", None) and [{"$or": [{"club_id": user["club_id"]}, {"club_id": "global"}]}, {"$or": [{"name": {"$regex": search, "$options": "i"}}, {"tags": {"$regex": search, "$options": "i"}}]}] or []
+        if not query.get("$and"):
+            query["name"] = {"$regex": search, "$options": "i"}
+    drills = await db.drills.find(query).sort("name", 1).to_list(200)
+    return str_ids(drills)
+
+@app.get("/api/drills/{drill_id}")
+async def get_drill(drill_id: str, request: Request):
+    await get_user_from_request(request)
+    drill = await db.drills.find_one({"_id": ObjectId(drill_id)})
+    if not drill:
+        raise HTTPException(status_code=404, detail="Drill not found")
+    return str_id(drill)
+
+@app.post("/api/drills")
+async def create_drill(data: DrillCreate, request: Request):
+    user = await get_user_from_request(request)
+    doc = {**data.dict(), "club_id": user["club_id"], "created_by": user["name"], "created_at": datetime.now(timezone.utc).isoformat()}
+    result = await db.drills.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    del doc["_id"]
+    return doc
+
+@app.put("/api/drills/{drill_id}")
+async def update_drill(drill_id: str, request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    body.pop("id", None)
+    body.pop("_id", None)
+    body["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.drills.update_one({"_id": ObjectId(drill_id), "club_id": user["club_id"]}, {"$set": body})
+    return {"status": "updated"}
+
+@app.delete("/api/drills/{drill_id}")
+async def delete_drill(drill_id: str, request: Request):
+    user = await get_user_from_request(request)
+    await db.drills.delete_one({"_id": ObjectId(drill_id), "club_id": user["club_id"]})
+    return {"status": "deleted"}
+
+# Assign drills to a training session
+@app.post("/api/training/{session_id}/drills")
+async def assign_drills_to_session(session_id: str, request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    drill_ids = body.get("drill_ids", [])
+    await db.training_sessions.update_one(
+        {"_id": ObjectId(session_id), "club_id": user["club_id"]},
+        {"$set": {"drill_ids": drill_ids, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"status": "updated", "drill_ids": drill_ids}
+
+@app.get("/api/training/{session_id}/drills")
+async def get_session_drills(session_id: str, request: Request):
+    user = await get_user_from_request(request)
+    session = await db.training_sessions.find_one({"_id": ObjectId(session_id), "club_id": user["club_id"]})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    drill_ids = session.get("drill_ids", [])
+    drills = []
+    for did in drill_ids:
+        try:
+            d = await db.drills.find_one({"_id": ObjectId(did)})
+            if d:
+                drills.append(str_id(d))
+        except:
+            pass
+    return drills
 
 # MATCHES
 @app.get("/api/matches")
@@ -2064,6 +2156,36 @@ async def seed_data():
         "created_at": now.isoformat()
     })
     
+    # SEED DRILLS LIBRARY
+    drill_seeds = [
+        {"name": "Rondo 4v2", "description": "Players keep possession in a small area while 2 defenders try to win the ball. Develops quick passing and movement.", "category": "technical", "difficulty": "beginner", "duration_minutes": 12, "min_players": 6, "max_players": 10, "equipment": ["cones", "bibs"], "min_age": 8, "instructions": ["Set up a 10x10m grid with cones", "4 players on outside, 2 in the middle", "Outside players pass to keep possession", "Defenders press to win the ball", "If intercepted, rotate: passer goes in middle", "Focus on 1-2 touch passing"], "tags": ["passing", "possession", "warm-up"]},
+        {"name": "Shooting Circuit", "description": "Rotating shooting stations working on different finishing techniques from various angles.", "category": "technical", "difficulty": "intermediate", "duration_minutes": 20, "min_players": 8, "max_players": 16, "equipment": ["goals", "cones", "balls"], "min_age": 10, "instructions": ["Set up 4 shooting stations around the penalty area", "Station 1: Low driven shot from 18 yards", "Station 2: Curling shot from the edge of the box", "Station 3: One-on-one with keeper after through ball", "Station 4: Header from cross", "Rotate every 3 minutes"], "tags": ["shooting", "finishing", "technique"]},
+        {"name": "1v1 Dribbling Challenge", "description": "Individual dribbling skills in competitive 1v1 situations.", "category": "technical", "difficulty": "intermediate", "duration_minutes": 15, "min_players": 4, "max_players": 20, "equipment": ["cones", "balls"], "min_age": 7, "instructions": ["Set up 15m channel with cones", "Attacker starts with ball, tries to beat defender", "Defender cannot tackle until attacker crosses start line", "3 attempts each, then switch roles", "Encourage step-overs, feints, body movements"], "tags": ["dribbling", "1v1", "skills"]},
+        {"name": "Passing Triangle", "description": "Three-player passing combination focusing on weight of pass and first touch.", "category": "technical", "difficulty": "beginner", "duration_minutes": 10, "min_players": 3, "max_players": 12, "equipment": ["cones", "balls"], "min_age": 6, "instructions": ["Form triangles of 10m sides", "Pass and follow your pass", "Focus on inside foot passing", "Progress to 1-touch passing", "Add movement off the ball"], "tags": ["passing", "first-touch", "warm-up"]},
+        {"name": "Ball Control Relay", "description": "Relay race combining speed with close ball control through gates.", "category": "technical", "difficulty": "beginner", "duration_minutes": 12, "min_players": 6, "max_players": 24, "equipment": ["cones", "balls"], "min_age": 6, "instructions": ["Set up slalom course with 8 cones", "Teams of 3 race through the course", "Must dribble through all gates", "Pass to next teammate at the end", "Fastest team wins"], "tags": ["dribbling", "speed", "control"]},
+        {"name": "Pressing Triggers", "description": "Team exercise on when and how to press as a unit. Focus on compactness and trigger recognition.", "category": "tactical", "difficulty": "advanced", "duration_minutes": 25, "min_players": 14, "max_players": 22, "equipment": ["cones", "bibs", "goals"], "min_age": 12, "instructions": ["Set up half-pitch with 2 teams", "Defending team presses when ball goes to marked zones", "Closest player presses ball carrier", "Teammates cut passing lanes", "If won back, counter-attack immediately", "Coach calls triggers: back pass, heavy touch, sideways pass"], "tags": ["pressing", "defensive", "team-shape"]},
+        {"name": "Positional Play 6v4", "description": "Overload game focusing on maintaining team shape and positional discipline.", "category": "tactical", "difficulty": "advanced", "duration_minutes": 20, "min_players": 10, "max_players": 14, "equipment": ["cones", "bibs"], "min_age": 12, "instructions": ["6 attackers vs 4 defenders in a 30x20m area", "Attackers must stay in zones", "3 passes = 1 point for attackers", "Defenders score by winning ball and passing out", "Rotate teams every 5 minutes"], "tags": ["possession", "positional-play", "tactical"]},
+        {"name": "Transition Game 5v5", "description": "Fast transitions from defense to attack and vice versa.", "category": "tactical", "difficulty": "intermediate", "duration_minutes": 20, "min_players": 10, "max_players": 14, "equipment": ["cones", "bibs", "goals"], "min_age": 10, "instructions": ["5v5 on a 40x25m pitch", "When possession changes, team must attack within 6 seconds", "Goals scored within 6 seconds count double", "No offside", "Coach feeds new ball if out of play"], "tags": ["transition", "counter-attack", "speed"]},
+        {"name": "Set Piece Rehearsal", "description": "Practice corner kicks, free kicks, and throw-in routines.", "category": "tactical", "difficulty": "intermediate", "duration_minutes": 25, "min_players": 11, "max_players": 22, "equipment": ["goals", "cones", "balls"], "min_age": 10, "instructions": ["15 min corners: near post, far post, short corner variations", "5 min free kicks: direct shots and indirect plays", "5 min defensive set pieces: marking assignments", "Full rehearsal with opposition"], "tags": ["set-pieces", "corners", "free-kicks"]},
+        {"name": "Sprint Intervals", "description": "High-intensity interval training to build speed and recovery capacity.", "category": "physical", "difficulty": "advanced", "duration_minutes": 20, "min_players": 1, "max_players": 30, "equipment": ["cones"], "min_age": 12, "instructions": ["Set up 40m sprint track", "Sprint 40m at 100% effort", "Jog back for recovery (30 seconds)", "Repeat 8 times = 1 set", "2 sets with 3 min rest between", "Focus on explosive starts"], "tags": ["speed", "fitness", "intervals"]},
+        {"name": "Agility Ladder Drills", "description": "Footwork and coordination training using agility ladders.", "category": "physical", "difficulty": "beginner", "duration_minutes": 15, "min_players": 1, "max_players": 20, "equipment": ["agility-ladders", "cones"], "min_age": 7, "instructions": ["Set up 2-3 agility ladders", "Exercise 1: Two feet in each square", "Exercise 2: Lateral shuffle", "Exercise 3: In-out hops", "Exercise 4: Icky shuffle", "3 reps of each, 30s rest between"], "tags": ["agility", "footwork", "coordination"]},
+        {"name": "Endurance Circuit", "description": "Station-based endurance training mixing running with bodyweight exercises.", "category": "physical", "difficulty": "intermediate", "duration_minutes": 30, "min_players": 4, "max_players": 20, "equipment": ["cones", "resistance-bands"], "min_age": 10, "instructions": ["6 stations, 45 seconds work, 15 seconds rest", "Station 1: Shuttle runs", "Station 2: Burpees", "Station 3: Mountain climbers", "Station 4: High knees", "Station 5: Lunges", "Station 6: Plank", "3 rounds with 2 min rest between"], "tags": ["endurance", "fitness", "circuit"]},
+        {"name": "Core Strength Session", "description": "Focused core strengthening exercises for injury prevention and stability.", "category": "physical", "difficulty": "beginner", "duration_minutes": 15, "min_players": 1, "max_players": 30, "equipment": ["mats"], "min_age": 8, "instructions": ["Plank hold: 3x30 seconds", "Side plank: 2x20 seconds each side", "Dead bugs: 3x10 reps", "Bird dogs: 3x10 reps", "Hollow body hold: 3x20 seconds", "Superman: 3x10 reps"], "tags": ["core", "strength", "injury-prevention"]},
+        {"name": "Goalkeeper Reaction Saves", "description": "Quick-fire shots to improve goalkeeper reflexes and shot-stopping.", "category": "goalkeeper", "difficulty": "intermediate", "duration_minutes": 15, "min_players": 2, "max_players": 4, "equipment": ["goals", "balls"], "min_age": 10, "instructions": ["GK starts on goal line facing away", "Coach calls 'turn' and fires shot within 2 seconds", "10 rapid shots from varying angles", "Mix of low, mid, and high shots", "Rest 2 min, repeat 3 sets"], "tags": ["goalkeeper", "reflexes", "shot-stopping"]},
+        {"name": "Goalkeeper Distribution", "description": "Work on goalkeeper distribution: throws, goal kicks, and passing under pressure.", "category": "goalkeeper", "difficulty": "intermediate", "duration_minutes": 20, "min_players": 3, "max_players": 6, "equipment": ["goals", "cones", "balls"], "min_age": 10, "instructions": ["Phase 1: Goal kicks to marked target zones", "Phase 2: Overarm throws to moving players", "Phase 3: Short passing under pressure from presser", "Phase 4: Counter-attack distribution after save", "10 reps each phase"], "tags": ["goalkeeper", "distribution", "passing"]},
+        {"name": "Goalkeeper 1v1 Technique", "description": "Closing angles, spreading, and timing in 1v1 situations.", "category": "goalkeeper", "difficulty": "advanced", "duration_minutes": 15, "min_players": 2, "max_players": 4, "equipment": ["goals", "cones", "balls"], "min_age": 12, "instructions": ["Attacker starts 25m from goal", "GK sets starting position", "Attacker dribbles towards goal", "GK must time run to close angle", "Focus on staying big and balanced", "10 reps then switch"], "tags": ["goalkeeper", "1v1", "positioning"]},
+        {"name": "Dynamic Warm-Up", "description": "Full-body activation warm-up to prepare players for training.", "category": "warmup", "difficulty": "beginner", "duration_minutes": 10, "min_players": 1, "max_players": 30, "equipment": ["cones"], "min_age": 6, "instructions": ["Light jog 2 laps of the pitch", "High knees across 20m", "Butt kicks across 20m", "Karaoke/carioca across 20m", "Leg swings (front/side) 10 each", "Arm circles and hip rotations", "Short accelerations 3x20m"], "tags": ["warm-up", "activation", "mobility"]},
+        {"name": "Cool Down & Stretching", "description": "Post-training recovery routine with static stretches and breathing.", "category": "warmup", "difficulty": "beginner", "duration_minutes": 10, "min_players": 1, "max_players": 30, "equipment": ["mats"], "min_age": 6, "instructions": ["Light walk for 2 minutes", "Hamstring stretch: 30s each leg", "Quad stretch: 30s each leg", "Calf stretch: 30s each leg", "Hip flexor stretch: 30s each side", "Shoulder and arm stretches", "Deep breathing: 5 breaths"], "tags": ["cool-down", "recovery", "stretching"]},
+        {"name": "Small-Sided Game 3v3", "description": "Fast-paced small-sided game to develop decision-making and creativity.", "category": "tactical", "difficulty": "beginner", "duration_minutes": 15, "min_players": 6, "max_players": 8, "equipment": ["cones", "bibs", "mini-goals"], "min_age": 7, "instructions": ["Set up 20x15m pitch with mini goals", "3v3 with no goalkeepers", "First to 5 goals wins", "Losing team does 5 press-ups", "Encourage creative play and risk-taking"], "tags": ["small-sided", "game", "creativity"]},
+        {"name": "Crossing & Finishing", "description": "Combination play with overlapping runs and crossing from wide positions.", "category": "technical", "difficulty": "intermediate", "duration_minutes": 20, "min_players": 8, "max_players": 16, "equipment": ["goals", "cones", "balls"], "min_age": 10, "instructions": ["Full-back overlaps winger on the flank", "Winger plays 1-2 and crosses first time", "Two strikers attack near and far post", "Alternate left and right sides", "Progress to add defenders"], "tags": ["crossing", "finishing", "combination-play"]},
+    ]
+
+    for drill in drill_seeds:
+        drill["club_id"] = "global"
+        drill["created_by"] = "System"
+        drill["created_at"] = now.isoformat()
+        await db.drills.insert_one(drill)
+
     return {
         "status": "seeded",
         "data": {
@@ -2074,6 +2196,7 @@ async def seed_data():
             "matches": 6,
             "announcements": 5,
             "seasons": 3,
+            "drills": len(drill_seeds),
             "credentials": {
                 "admin": {"email": "admin@academy.com", "password": "admin123"},
                 "coach": {"email": "carlos@academy.com", "password": "coach123"},

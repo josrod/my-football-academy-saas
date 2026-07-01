@@ -60,7 +60,8 @@
     "seasons": "Temporadas",
     "formations": "Formações",
     "comparePlayers": "Comparar",
-    "aiInsights": "IA Insights"
+    "aiInsights": "IA Insights",
+    "drills": "Exercícios"
   },
   "landing": {
     "subtitle": "Plataforma de Academias de Futebol Juvenil",
@@ -499,5 +500,38 @@
     "playerInsights": "Insights de Jogadores",
     "teamInsights": "Insights de Equipes",
     "recommendations": "Recomendações"
+  },
+  "drills": {
+    "title": "Exercícios de Treino",
+    "subtitle": "Explore e gerencie sua biblioteca de exercícios",
+    "library": "Biblioteca de Exercícios",
+    "createDrill": "Criar Exercício",
+    "all": "Todos",
+    "searchPlaceholder": "Buscar exercícios...",
+    "exercises": "exercícios",
+    "cat_technical": "Técnica",
+    "cat_tactical": "Tática",
+    "cat_physical": "Físico",
+    "cat_goalkeeper": "Goleiro",
+    "cat_warmup": "Aquecimento",
+    "beginner": "Iniciante",
+    "intermediate": "Intermediário",
+    "advanced": "Avançado",
+    "duration": "Duração",
+    "players": "Jogadores",
+    "minAge": "Idade Mín",
+    "category": "Categoria",
+    "equipment": "Equipamento",
+    "instructions": "Instruções",
+    "noDrills": "Nenhum exercício encontrado",
+    "drillName": "Nome do Exercício",
+    "descLabel": "Descrição",
+    "difficultyLabel": "Dificuldade",
+    "minPlayersLabel": "Mín Jogadores",
+    "maxPlayersLabel": "Máx Jogadores",
+    "instructionsLabel": "Instruções",
+    "instructionsPlaceholder": "Um passo por linha...",
+    "equipmentLabel": "Equipamento (separado por vírgulas)",
+    "tagsLabel": "Tags (separadas por vírgulas)"
   }
 }

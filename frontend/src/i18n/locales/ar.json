@@ -60,7 +60,8 @@
     "seasons": "المواسم",
     "formations": "التشكيلات",
     "comparePlayers": "مقارنة",
-    "aiInsights": "رؤى الذكاء"
+    "aiInsights": "رؤى الذكاء",
+    "drills": "تمارين"
   },
   "landing": {
     "subtitle": "منصة أكاديميات كرة القدم للناشئين",
@@ -499,5 +500,38 @@
     "playerInsights": "رؤى اللاعبين",
     "teamInsights": "رؤى الفرق",
     "recommendations": "توصيات"
+  },
+  "drills": {
+    "title": "تمارين التدريب",
+    "subtitle": "تصفح وإدارة مكتبة التمارين",
+    "library": "مكتبة التمارين",
+    "createDrill": "إنشاء تمرين",
+    "all": "الكل",
+    "searchPlaceholder": "بحث عن تمارين...",
+    "exercises": "تمارين",
+    "cat_technical": "تقنية",
+    "cat_tactical": "تكتيكية",
+    "cat_physical": "بدنية",
+    "cat_goalkeeper": "حارس مرمى",
+    "cat_warmup": "إحماء",
+    "beginner": "مبتدئ",
+    "intermediate": "متوسط",
+    "advanced": "متقدم",
+    "duration": "المدة",
+    "players": "لاعبين",
+    "minAge": "العمر الأدنى",
+    "category": "الفئة",
+    "equipment": "المعدات",
+    "instructions": "التعليمات",
+    "noDrills": "لم يتم العثور على تمارين",
+    "drillName": "اسم التمرين",
+    "descLabel": "الوصف",
+    "difficultyLabel": "الصعوبة",
+    "minPlayersLabel": "أقل عدد لاعبين",
+    "maxPlayersLabel": "أقصى عدد لاعبين",
+    "instructionsLabel": "التعليمات",
+    "instructionsPlaceholder": "خطوة واحدة في كل سطر...",
+    "equipmentLabel": "المعدات (مفصولة بفواصل)",
+    "tagsLabel": "الوسوم (مفصولة بفواصل)"
   }
 }

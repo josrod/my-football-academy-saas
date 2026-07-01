@@ -60,7 +60,8 @@
     "seasons": "Saisons",
     "formations": "Formationen",
     "comparePlayers": "Vergleichen",
-    "aiInsights": "KI Insights"
+    "aiInsights": "KI Insights",
+    "drills": "Übungen"
   },
   "landing": {
     "subtitle": "Jugendfußball-Akademie Plattform",
@@ -499,5 +500,38 @@
     "playerInsights": "Spieler-Insights",
     "teamInsights": "Team-Insights",
     "recommendations": "Empfehlungen"
+  },
+  "drills": {
+    "title": "Trainingsübungen",
+    "subtitle": "Durchsuche und verwalte deine Übungsbibliothek",
+    "library": "Übungsbibliothek",
+    "createDrill": "Übung Erstellen",
+    "all": "Alle",
+    "searchPlaceholder": "Übungen suchen...",
+    "exercises": "Übungen",
+    "cat_technical": "Technik",
+    "cat_tactical": "Taktik",
+    "cat_physical": "Fitness",
+    "cat_goalkeeper": "Torwart",
+    "cat_warmup": "Aufwärmen",
+    "beginner": "Anfänger",
+    "intermediate": "Mittel",
+    "advanced": "Fortgeschritten",
+    "duration": "Dauer",
+    "players": "Spieler",
+    "minAge": "Min Alter",
+    "category": "Kategorie",
+    "equipment": "Ausrüstung",
+    "instructions": "Anleitung",
+    "noDrills": "Keine Übungen gefunden",
+    "drillName": "Übungsname",
+    "descLabel": "Beschreibung",
+    "difficultyLabel": "Schwierigkeit",
+    "minPlayersLabel": "Min Spieler",
+    "maxPlayersLabel": "Max Spieler",
+    "instructionsLabel": "Anleitung",
+    "instructionsPlaceholder": "Ein Schritt pro Zeile...",
+    "equipmentLabel": "Ausrüstung (kommagetrennt)",
+    "tagsLabel": "Tags (kommagetrennt)"
   }
 }

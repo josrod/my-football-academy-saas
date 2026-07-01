@@ -60,7 +60,8 @@
     "seasons": "Seasons",
     "formations": "Formations",
     "comparePlayers": "Compare",
-    "aiInsights": "AI Insights"
+    "aiInsights": "AI Insights",
+    "drills": "Drills"
   },
   "landing": {
     "subtitle": "Youth Football Academy Platform",
@@ -499,5 +500,38 @@
     "playerInsights": "Player Insights",
     "teamInsights": "Team Insights",
     "recommendations": "Recommendations"
+  },
+  "drills": {
+    "title": "Training Drills",
+    "subtitle": "Browse and manage your training exercises library",
+    "library": "Drill Library",
+    "createDrill": "Create Drill",
+    "all": "All",
+    "searchPlaceholder": "Search drills...",
+    "exercises": "exercises",
+    "cat_technical": "Technical",
+    "cat_tactical": "Tactical",
+    "cat_physical": "Physical",
+    "cat_goalkeeper": "Goalkeeper",
+    "cat_warmup": "Warm-up",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "duration": "Duration",
+    "players": "Players",
+    "minAge": "Min Age",
+    "category": "Category",
+    "equipment": "Equipment",
+    "instructions": "Instructions",
+    "noDrills": "No drills found",
+    "drillName": "Drill Name",
+    "descLabel": "Description",
+    "difficultyLabel": "Difficulty",
+    "minPlayersLabel": "Min Players",
+    "maxPlayersLabel": "Max Players",
+    "instructionsLabel": "Instructions",
+    "instructionsPlaceholder": "One step per line...",
+    "equipmentLabel": "Equipment (comma separated)",
+    "tagsLabel": "Tags (comma separated)"
   }
 }
