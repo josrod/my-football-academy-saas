@@ -1018,8 +1018,32 @@ PLAN_TEMPLATES = [
 
 @app.get("/api/training-plan-templates")
 async def get_plan_templates(request: Request):
-    await get_user_from_request(request)
-    return PLAN_TEMPLATES
+    user = await get_user_from_request(request)
+    custom = await db.custom_templates.find({"club_id": user["club_id"]}).sort("created_at", -1).to_list(50)
+    custom_list = [{"id": str(c["_id"]), "name": c["name"], "description": c.get("description", ""), "icon": c.get("icon", "target"), "days": c["days"], "custom": True} for c in custom]
+    return PLAN_TEMPLATES + custom_list
+
+@app.post("/api/training-plan-templates/custom")
+async def create_custom_template(request: Request):
+    user = await get_user_from_request(request)
+    body = await request.json()
+    doc = {
+        "name": body.get("name", "Mi Plantilla"),
+        "description": body.get("description", ""),
+        "icon": body.get("icon", "target"),
+        "days": body.get("days", [[], [], [], [], [], [], []]),
+        "club_id": user["club_id"],
+        "created_by": user["name"],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.custom_templates.insert_one(doc)
+    return {"id": str(result.inserted_id), "name": doc["name"], "description": doc["description"], "icon": doc["icon"], "days": doc["days"], "custom": True}
+
+@app.delete("/api/training-plan-templates/custom/{tpl_id}")
+async def delete_custom_template(tpl_id: str, request: Request):
+    user = await get_user_from_request(request)
+    await db.custom_templates.delete_one({"_id": ObjectId(tpl_id), "club_id": user["club_id"]})
+    return {"status": "deleted"}
 
 # TRAINING PLANS (Weekly Planner)
 @app.get("/api/training-plans")

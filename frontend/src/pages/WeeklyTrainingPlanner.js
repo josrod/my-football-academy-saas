@@ -122,6 +122,10 @@ export default function WeeklyTrainingPlanner() {
   const [tplOpen, setTplOpen] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [tplLoading, setTplLoading] = useState(false);
+  const [saveTplOpen, setSaveTplOpen] = useState(false);
+  const [saveTplName, setSaveTplName] = useState('');
+  const [saveTplDesc, setSaveTplDesc] = useState('');
+  const [savingTpl, setSavingTpl] = useState(false);
 
   const DAY_LABELS = [
     t('planner.mon'), t('planner.tue'), t('planner.wed'),
@@ -229,6 +233,30 @@ export default function WeeklyTrainingPlanner() {
     setTplOpen(false);
   };
 
+  const handleSaveAsTemplate = async () => {
+    if (!saveTplName.trim()) return;
+    setSavingTpl(true);
+    try {
+      const res = await api.post('/api/training-plan-templates/custom', {
+        name: saveTplName.trim(),
+        description: saveTplDesc.trim(),
+        days,
+      });
+      setTemplates(prev => [...prev, res]);
+      setSaveTplOpen(false);
+      setSaveTplName('');
+      setSaveTplDesc('');
+    } catch (e) { console.error(e); }
+    setSavingTpl(false);
+  };
+
+  const handleDeleteTemplate = async (tplId) => {
+    try {
+      await api.delete(`/api/training-plan-templates/custom/${tplId}`);
+      setTemplates(prev => prev.filter(t => t.id !== tplId));
+    } catch (e) { console.error(e); }
+  };
+
   const navigateWeek = (dir) => {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + dir * 7);
@@ -253,6 +281,12 @@ export default function WeeklyTrainingPlanner() {
             className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-amber-400 border border-amber-500/20 rounded-lg hover:bg-amber-500/10 transition-colors">
             <LayoutTemplate size={13} /> {t('planner.templates')}
           </button>
+          {totalDrills > 0 && (
+            <button onClick={() => { setSaveTplName(planName || ''); setSaveTplDesc(''); setSaveTplOpen(true); }} data-testid="save-as-template-btn"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/10 transition-colors">
+              <Plus size={13} /> {t('planner.saveAsTemplate')}
+            </button>
+          )}
           {planId && (
             <button onClick={() => { setDupTeam(selectedTeam); setDupWeek(''); setDupOpen(true); }} data-testid="duplicate-plan-btn"
               className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-cyan-400 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/10 transition-colors">
@@ -366,7 +400,7 @@ export default function WeeklyTrainingPlanner() {
                 <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-primary" /></div>
               ) : (
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {templates.map(tpl => {
+                  {templates.filter(t => !t.custom).map(tpl => {
                     const TplIcon = CAT_ICON[tpl.icon] || LayoutTemplate;
                     const totalDrillsCount = tpl.days.flat().length;
                     const totalMin = tpl.days.flat().reduce((s, d) => s + (d.duration_minutes || 0), 0);
@@ -389,12 +423,84 @@ export default function WeeklyTrainingPlanner() {
                       </button>
                     );
                   })}
+
+                  {templates.some(t => t.custom) && (
+                    <>
+                      <div className="flex items-center gap-2 pt-3 pb-1">
+                        <div className="h-px flex-1 bg-zinc-800" />
+                        <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">{t('planner.myTemplates')}</span>
+                        <div className="h-px flex-1 bg-zinc-800" />
+                      </div>
+                      {templates.filter(t => t.custom).map(tpl => {
+                        const totalDrillsCount = tpl.days.flat().length;
+                        const totalMin = tpl.days.flat().reduce((s, d) => s + (d.duration_minutes || 0), 0);
+                        const activeDays = tpl.days.filter(d => d.length > 0).length;
+                        return (
+                          <div key={tpl.id} className="flex items-start gap-3 p-4 rounded-xl border border-zinc-800 hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] transition-all group">
+                            <button onClick={() => applyTemplate(tpl)} className="flex items-start gap-3 flex-1 text-left" data-testid={`template-custom-${tpl.id}`}>
+                              <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                <LayoutTemplate size={16} className="text-emerald-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">{tpl.name}</p>
+                                {tpl.description && <p className="text-[11px] text-zinc-500 mt-0.5">{tpl.description}</p>}
+                                <div className="flex items-center gap-3 mt-2 text-[10px] text-zinc-600">
+                                  <span>{activeDays} {t('planner.daysActive')}</span>
+                                  <span>{totalDrillsCount} {t('drills.exercises')}</span>
+                                  <span>{totalMin} min</span>
+                                </div>
+                              </div>
+                            </button>
+                            <button onClick={() => handleDeleteTemplate(tpl.id)} data-testid={`delete-template-${tpl.id}`}
+                              className="p-1.5 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0 mt-1">
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
                 </div>
               )}
               <div className="flex justify-end mt-4">
                 <button onClick={() => setTplOpen(false)} data-testid="tpl-close-btn"
                   className="px-4 py-2 text-xs text-zinc-400 hover:text-white rounded-lg transition-colors">
                   {t('common.cancel')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Save as Template Modal */}
+      <AnimatePresence>
+        {saveTplOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setSaveTplOpen(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()} data-testid="save-template-modal">
+              <h3 className="text-lg font-bold text-white mb-1">{t('planner.saveAsTemplateTitle')}</h3>
+              <p className="text-xs text-zinc-400 mb-5">{t('planner.saveAsTemplateDesc')}</p>
+
+              <label className="block text-xs text-zinc-400 mb-1">{t('common.name')}</label>
+              <input value={saveTplName} onChange={e => setSaveTplName(e.target.value)} data-testid="tpl-name-input"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white mb-4 focus:outline-none focus:border-primary/50"
+                placeholder={t('planner.templateNamePlaceholder')} />
+
+              <label className="block text-xs text-zinc-400 mb-1">{t('common.description')}</label>
+              <input value={saveTplDesc} onChange={e => setSaveTplDesc(e.target.value)} data-testid="tpl-desc-input"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white mb-6 focus:outline-none focus:border-primary/50"
+                placeholder={t('planner.templateDescPlaceholder')} />
+
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => setSaveTplOpen(false)} data-testid="save-tpl-cancel-btn"
+                  className="px-4 py-2 text-xs text-zinc-400 hover:text-white rounded-lg transition-colors">
+                  {t('common.cancel')}
+                </button>
+                <button onClick={handleSaveAsTemplate} disabled={savingTpl || !saveTplName.trim()} data-testid="save-tpl-confirm-btn"
+                  className="flex items-center gap-1.5 px-5 py-2 bg-emerald-500 text-black text-xs font-bold rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50">
+                  {savingTpl ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} {t('common.save')}
                 </button>
               </div>
             </motion.div>

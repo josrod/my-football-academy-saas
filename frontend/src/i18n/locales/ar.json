@@ -556,6 +556,12 @@
     "templates": "قوالب",
     "templatesTitle": "قوالب الخطة",
     "templatesDesc": "اختر قالبًا محددًا مسبقًا للمخطط الأسبوعي",
-    "daysActive": "أيام"
+    "daysActive": "أيام",
+    "saveAsTemplate": "حفظ كقالب",
+    "saveAsTemplateTitle": "حفظ كقالب",
+    "saveAsTemplateDesc": "احفظ الخطة الحالية كقالب مخصص قابل لإعادة الاستخدام",
+    "myTemplates": "قوالبي",
+    "templateNamePlaceholder": "اسم القالب...",
+    "templateDescPlaceholder": "وصف مختصر (اختياري)"
   }
 }

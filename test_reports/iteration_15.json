@@ -1,0 +1,85 @@
+{
+  "summary": "Iteration 15: Custom Training Plan Templates feature fully tested. Backend 100% (11/11 tests passed). Frontend 100% - All custom template features working: Save as Template button visibility (only when drills > 0), save modal with name/description inputs, cancel button, custom template creation, custom templates appear in 'Mis Plantillas' section with green accent, delete button on custom templates, loading custom templates.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: GET /api/training-plan-templates requires authentication (401 without token)",
+    "Backend: GET returns 5 predefined templates (preseason, recovery, matchweek, technical, goalkeeper)",
+    "Backend: POST /api/training-plan-templates/custom requires authentication",
+    "Backend: POST creates custom template with name, description, days and returns custom: true",
+    "Backend: Custom template appears in GET list with custom: true field",
+    "Backend: GET returns both predefined (5) and custom templates",
+    "Backend: DELETE /api/training-plan-templates/custom/{id} requires authentication",
+    "Backend: DELETE removes custom template from list",
+    "Backend: Custom templates are scoped to club_id",
+    "Backend: Custom template response has all required fields (id, name, description, icon, days, custom)",
+    "Backend: Custom template can be created with empty days",
+    "Frontend: 'Guardar Plantilla' button (data-testid='save-as-template-btn') visible only when plan has drills (totalDrills > 0)",
+    "Frontend: Clicking 'Guardar Plantilla' opens save modal (data-testid='save-template-modal')",
+    "Frontend: Save modal has name input (data-testid='tpl-name-input') and description input (data-testid='tpl-desc-input')",
+    "Frontend: Cancel button (data-testid='save-tpl-cancel-btn') closes modal without saving",
+    "Frontend: Save button (data-testid='save-tpl-confirm-btn') creates custom template and closes modal",
+    "Frontend: Custom templates appear in templates modal under 'Mis Plantillas' section with green accent",
+    "Frontend: Custom templates have delete button (data-testid='delete-template-{id}') that removes them",
+    "Frontend: Clicking custom template (data-testid='template-custom-{id}') loads it and closes modal"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_custom_templates.py",
+    "/app/test_reports/pytest/pytest_custom_templates.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_custom_templates.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None - custom templates created during tests and cleaned up after",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Custom Training Plan Templates feature fully functional. Backend endpoints: POST /api/training-plan-templates/custom (create), GET /api/training-plan-templates (returns predefined + custom), DELETE /api/training-plan-templates/custom/{id} (delete). Custom templates stored in 'custom_templates' MongoDB collection with club_id scoping. Frontend: Save as Template button only visible when totalDrills > 0. Save modal has name/description inputs. Custom templates appear in 'Mis Plantillas' section with green accent (bg-emerald-500). Test credentials: carlos@academy.com / coach123",
+  "features_verified": {
+    "custom_training_plan_templates": {
+      "endpoints": {
+        "create": "POST /api/training-plan-templates/custom",
+        "list": "GET /api/training-plan-templates",
+        "delete": "DELETE /api/training-plan-templates/custom/{id}"
+      },
+      "authentication": "Required for all endpoints (401 without token)",
+      "response_structure": {
+        "custom_template_fields": ["id", "name", "description", "icon", "days", "custom"],
+        "custom_field_value": true,
+        "default_icon": "target",
+        "days_array_length": 7
+      },
+      "club_isolation": "Custom templates scoped to club_id",
+      "data_testids": [
+        "save-as-template-btn",
+        "save-template-modal",
+        "tpl-name-input",
+        "tpl-desc-input",
+        "save-tpl-cancel-btn",
+        "save-tpl-confirm-btn",
+        "template-custom-{id}",
+        "delete-template-{id}"
+      ],
+      "ui_behavior": {
+        "save_button_visibility": "Only visible when totalDrills > 0",
+        "custom_section_label": "Mis Plantillas",
+        "custom_template_accent": "green (bg-emerald-500)"
+      }
+    }
+  },
+  "test_credentials": {
+    "coach": "carlos@academy.com / coach123"
+  }
+}

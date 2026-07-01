@@ -556,6 +556,12 @@
     "templates": "Modèles",
     "templatesTitle": "Modèles de Plan",
     "templatesDesc": "Sélectionnez un modèle prédéfini pour le planificateur hebdomadaire",
-    "daysActive": "jours"
+    "daysActive": "jours",
+    "saveAsTemplate": "Sauvegarder Modèle",
+    "saveAsTemplateTitle": "Sauvegarder comme Modèle",
+    "saveAsTemplateDesc": "Enregistrez le plan actuel comme modèle personnalisé réutilisable",
+    "myTemplates": "Mes Modèles",
+    "templateNamePlaceholder": "Nom du modèle...",
+    "templateDescPlaceholder": "Description brève (optionnel)"
   }
 }

@@ -556,6 +556,12 @@
     "templates": "Plantillas",
     "templatesTitle": "Plantillas de Plan",
     "templatesDesc": "Selecciona una plantilla predefinida para cargar en el planificador semanal",
-    "daysActive": "días"
+    "daysActive": "días",
+    "saveAsTemplate": "Guardar Plantilla",
+    "saveAsTemplateTitle": "Guardar como Plantilla",
+    "saveAsTemplateDesc": "Guarda el plan actual como una plantilla personalizada reutilizable",
+    "myTemplates": "Mis Plantillas",
+    "templateNamePlaceholder": "Nombre de la plantilla...",
+    "templateDescPlaceholder": "Descripción breve (opcional)"
   }
 }

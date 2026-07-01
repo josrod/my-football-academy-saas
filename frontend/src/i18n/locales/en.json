@@ -556,6 +556,12 @@
     "templates": "Templates",
     "templatesTitle": "Plan Templates",
     "templatesDesc": "Select a predefined template to load into the weekly planner",
-    "daysActive": "days"
+    "daysActive": "days",
+    "saveAsTemplate": "Save as Template",
+    "saveAsTemplateTitle": "Save as Template",
+    "saveAsTemplateDesc": "Save the current plan as a reusable custom template",
+    "myTemplates": "My Templates",
+    "templateNamePlaceholder": "Template name...",
+    "templateDescPlaceholder": "Brief description (optional)"
   }
 }

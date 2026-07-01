@@ -556,6 +556,12 @@
     "templates": "Vorlagen",
     "templatesTitle": "Planvorlagen",
     "templatesDesc": "Wählen Sie eine vordefinierte Vorlage für den Wochenplaner",
-    "daysActive": "Tage"
+    "daysActive": "Tage",
+    "saveAsTemplate": "Als Vorlage speichern",
+    "saveAsTemplateTitle": "Als Vorlage speichern",
+    "saveAsTemplateDesc": "Den aktuellen Plan als wiederverwendbare Vorlage speichern",
+    "myTemplates": "Meine Vorlagen",
+    "templateNamePlaceholder": "Vorlagenname...",
+    "templateDescPlaceholder": "Kurzbeschreibung (optional)"
   }
 }
