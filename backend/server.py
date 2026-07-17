@@ -16,6 +16,8 @@ import uuid
 import json as json_module
 import asyncio
 import requests as http_requests
+import time
+import collections
 from dotenv import load_dotenv
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
@@ -23,13 +25,29 @@ load_dotenv()
 
 app = FastAPI(title="Academy SaaS API")
 
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---- Rate Limiter ----
+class RateLimiter:
+    def __init__(self):
+        self.attempts = collections.defaultdict(list)
+
+    def check(self, key: str, max_attempts: int, window_seconds: int):
+        now = time.time()
+        self.attempts[key] = [t for t in self.attempts[key] if now - t < window_seconds]
+        if len(self.attempts[key]) >= max_attempts:
+            raise HTTPException(status_code=429, detail="Too many requests. Try again later.")
+        self.attempts[key].append(now)
+
+rate_limiter = RateLimiter()
 
 MONGO_URL = os.environ.get("MONGO_URL")
 DB_NAME = os.environ.get("DB_NAME")
@@ -92,10 +110,12 @@ async def get_user_from_request(request: Request):
     user = await db.users.find_one({"_id": ObjectId(payload["user_id"])})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    if user.get("status") == "inactive":
+        raise HTTPException(status_code=403, detail="Account deactivated")
     return {
         "user_id": str(user["_id"]),
-        "club_id": payload["club_id"],
-        "role": payload["role"],
+        "club_id": user.get("club_id", ""),
+        "role": user.get("role", ""),
         "name": user.get("name", ""),
         "email": user.get("email", "")
     }
@@ -391,7 +411,10 @@ async def signup(data: SignupRequest):
     }
 
 @app.post("/api/auth/login")
-async def login(data: LoginRequest):
+async def login(data: LoginRequest, request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    rate_limiter.check(f"login:{client_ip}", max_attempts=10, window_seconds=300)
+    rate_limiter.check(f"login:{data.email}", max_attempts=5, window_seconds=300)
     user = await db.users.find_one({"email": data.email})
     if not user or not verify_password(data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -557,6 +580,7 @@ async def update_player(player_id: str, request: Request):
     body = await request.json()
     body.pop("id", None)
     body.pop("_id", None)
+    body.pop("club_id", None)
     body["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = await db.players.update_one(
         {"_id": ObjectId(player_id), "club_id": user["club_id"]},
@@ -651,6 +675,7 @@ async def update_injury(injury_id: str, request: Request):
     body = await request.json()
     body.pop("id", None)
     body.pop("_id", None)
+    body.pop("club_id", None)
     await db.player_injuries.update_one(
         {"_id": ObjectId(injury_id), "club_id": user["club_id"]},
         {"$set": body}
@@ -703,6 +728,7 @@ async def update_team(team_id: str, request: Request):
     body = await request.json()
     body.pop("id", None)
     body.pop("_id", None)
+    body.pop("club_id", None)
     await db.teams.update_one(
         {"_id": ObjectId(team_id), "club_id": user["club_id"]},
         {"$set": body}
@@ -830,6 +856,7 @@ async def update_drill(drill_id: str, request: Request):
     body = await request.json()
     body.pop("id", None)
     body.pop("_id", None)
+    body.pop("club_id", None)
     body["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.drills.update_one({"_id": ObjectId(drill_id), "club_id": user["club_id"]}, {"$set": body})
     return {"status": "updated"}
@@ -1234,6 +1261,7 @@ async def update_match(match_id: str, request: Request):
     body = await request.json()
     body.pop("id", None)
     body.pop("_id", None)
+    body.pop("club_id", None)
     await db.matches.update_one(
         {"_id": ObjectId(match_id), "club_id": user["club_id"]},
         {"$set": body}
@@ -1567,9 +1595,14 @@ async def get_parent_announcements(request: Request):
     return str_ids(anns)
 
 # ADMIN
+def require_admin(user):
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+
 @app.get("/api/admin/users")
 async def get_users(request: Request):
     user = await get_user_from_request(request)
+    require_admin(user)
     users = await db.users.find(
         {"club_id": user["club_id"]}, {"password": 0}
     ).to_list(100)
@@ -1578,6 +1611,7 @@ async def get_users(request: Request):
 @app.put("/api/admin/users/{user_id}")
 async def update_user(user_id: str, data: UserUpdate, request: Request):
     user = await get_user_from_request(request)
+    require_admin(user)
     update = {}
     if data.name:
         update["name"] = data.name
@@ -1595,6 +1629,7 @@ async def update_user(user_id: str, data: UserUpdate, request: Request):
 @app.delete("/api/admin/users/{user_id}")
 async def delete_user(user_id: str, request: Request):
     user = await get_user_from_request(request)
+    require_admin(user)
     if user_id == user["user_id"]:
         raise HTTPException(status_code=400, detail="Cannot delete yourself")
     await db.users.delete_one({"_id": ObjectId(user_id), "club_id": user["club_id"]})
@@ -1913,7 +1948,6 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
 @app.get("/api/files/{path:path}")
 async def download_file(path: str, request: Request, auth: str = Query(None)):
-    # Support both header and query param auth
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer ") and auth:
         auth_header = f"Bearer {auth}"
@@ -1921,9 +1955,12 @@ async def download_file(path: str, request: Request, auth: str = Query(None)):
         raise HTTPException(status_code=401, detail="Missing auth")
     
     token = auth_header.split(" ")[1]
-    decode_token(token)
+    payload = decode_token(token)
+    user = await db.users.find_one({"_id": ObjectId(payload["user_id"])})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
     
-    record = await db.files.find_one({"storage_path": path, "is_deleted": False})
+    record = await db.files.find_one({"storage_path": path, "is_deleted": False, "club_id": user.get("club_id", "")})
     if not record:
         raise HTTPException(status_code=404, detail="File not found")
     
@@ -2452,12 +2489,7 @@ async def seed_data():
             "matches": 6,
             "announcements": 5,
             "seasons": 3,
-            "drills": len(drill_seeds),
-            "credentials": {
-                "admin": {"email": "admin@academy.com", "password": "admin123"},
-                "coach": {"email": "carlos@academy.com", "password": "coach123"},
-                "parent": {"email": "parent@academy.com", "password": "parent123"}
-            }
+            "drills": len(drill_seeds)
         }
     }
 
@@ -2534,6 +2566,7 @@ async def create_and_push_notification(user_id: str, club_id: str, message: str,
 @app.post("/api/ai/insights")
 async def generate_ai_insights(request: Request):
     user = await get_user_from_request(request)
+    rate_limiter.check(f"ai:{user['user_id']}", max_attempts=10, window_seconds=60)
     club_id = user["club_id"]
 
     # Gather data for AI analysis
@@ -2633,7 +2666,7 @@ Respond ONLY with valid JSON, no markdown."""
         )
         return {"insights": insights, "generated_at": datetime.now(timezone.utc).isoformat()}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="AI generation failed. Please try again later.")
 
 @app.get("/api/ai/insights")
 async def get_cached_insights(request: Request):
@@ -2705,4 +2738,4 @@ Respond ONLY with valid JSON."""
 
         return {"translations": translations}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Translation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Translation failed. Please try again later.")
